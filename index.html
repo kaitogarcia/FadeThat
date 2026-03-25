@@ -78,9 +78,25 @@
     .lede {
       max-width: 640px;
       margin: 0 0 22px;
-      font-size: 1.12rem;
+      font-size: 1.02rem;
       line-height: 1.65;
       color: var(--muted);
+    }
+
+    .mini-link {
+      margin: 0 0 18px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .mini-link:hover,
+    .mini-link:focus-visible {
+      text-decoration: underline;
+      color: var(--text);
     }
 
     .actions {
@@ -154,28 +170,26 @@
 
     <main class="hero">
       <h1>Fade That</h1>
+      <a
+        class="mini-link"
+        href="https://soundcloud.com/fader1/tracks"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Open Fader1 SoundCloud tracks"
+      >
+        <svg class="sc-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 15h1v4H3v-4Zm3-2h1v6H6v-6Zm3-4h1v10H9V9Zm3-2h1v12h-1V7Zm2 8a4 4 0 0 1 4-4 4 4 0 1 1 0 8h-6v-4h2Z" />
+        </svg>
+        Fader1 SoundCloud
+      </a>
       <p class="lede">
-        Run the YouTube track flow from a cleaner front door. The scraper workspace lets you paste
-        track titles, attach a YouTube API key, review matched URLs, and hand the approved list
-        off to your download pipeline.
+        welcome
       </p>
 
       <div class="actions">
         <a class="button primary" href="scraper/">Open Scraper</a>
         <a class="button" href="privacy/">Privacy Policy</a>
         <a class="button" href="terms/">Terms of Service</a>
-        <a
-          class="button icon-link"
-          href="https://soundcloud.com/fader1/tracks"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Open FadeThat SoundCloud tracks"
-        >
-          <svg class="sc-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 15h1v4H3v-4Zm3-2h1v6H6v-6Zm3-4h1v10H9V9Zm3-2h1v12h-1V7Zm2 8a4 4 0 0 1 4-4 4 4 0 1 1 0 8h-6v-4h2Z" />
-          </svg>
-          SoundCloud
-        </a>
       </div>
 
       <div class="note">
