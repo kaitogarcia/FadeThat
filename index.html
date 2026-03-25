@@ -7,14 +7,13 @@
   <meta name="description" content="FadeThat home page" />
   <style>
     :root {
-      --bg: #f8f0e3;
-      --surface: rgba(255, 252, 245, 0.88);
-      --text: #1f1a17;
-      --muted: #6c5a4d;
-      --accent: #c7522a;
-      --accent-dark: #8d3217;
-      --line: rgba(31, 26, 23, 0.12);
-      --shadow: 0 24px 60px rgba(76, 43, 24, 0.14);
+      --bg: #f4f4f4;
+      --surface: #ffffff;
+      --text: #111111;
+      --muted: #444444;
+      --accent: #111111;
+      --accent-dark: #000000;
+      --line: #111111;
     }
 
     * {
@@ -24,12 +23,9 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: "Courier New", Courier, monospace;
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(199, 82, 42, 0.18), transparent 28%),
-        radial-gradient(circle at right, rgba(120, 160, 138, 0.16), transparent 26%),
-        linear-gradient(180deg, #f7eee1 0%, #f5e7d4 48%, #efe1cd 100%);
+      background: var(--bg);
     }
 
     .shell {
@@ -45,10 +41,8 @@
       align-items: center;
       padding: 18px 22px;
       border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255, 250, 242, 0.76);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 24px rgba(76, 43, 24, 0.08);
+      border-radius: 0;
+      background: var(--surface);
     }
 
     .nav a {
@@ -68,29 +62,17 @@
       margin-top: 28px;
       padding: 56px 30px;
       border: 1px solid var(--line);
-      border-radius: 30px;
+      border-radius: 0;
       background: var(--surface);
-      box-shadow: var(--shadow);
       overflow: hidden;
       position: relative;
     }
 
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: auto -40px -40px auto;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(199, 82, 42, 0.26), transparent 68%);
-      pointer-events: none;
-    }
-
     h1 {
       margin: 0 0 12px;
-      font-size: clamp(2.8rem, 8vw, 5.6rem);
-      line-height: 0.95;
-      letter-spacing: -0.05em;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      line-height: 1.1;
+      letter-spacing: 0;
     }
 
     .lede {
@@ -114,41 +96,49 @@
       justify-content: center;
       min-height: 48px;
       padding: 0 18px;
-      border-radius: 999px;
+      border-radius: 0;
       border: 1px solid var(--text);
       text-decoration: none;
       color: var(--text);
-      background: transparent;
+      background: var(--surface);
       font-weight: 600;
+    }
+
+    .button.icon-link {
+      gap: 10px;
+    }
+
+    .sc-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      fill: currentColor;
+      flex: 0 0 auto;
     }
 
     .button.primary {
       border-color: var(--accent);
       background: var(--accent);
-      color: #fff7f0;
+      color: #ffffff;
     }
 
     .button:hover,
     .button:focus-visible {
-      transform: translateY(-1px);
+      text-decoration: underline;
     }
 
     .note {
       margin-top: 26px;
       padding: 18px 20px;
-      border-left: 4px solid var(--accent);
-      background: rgba(255, 248, 240, 0.9);
+      border: 1px solid var(--line);
+      background: var(--surface);
       color: var(--muted);
+      font-size: 0.95rem;
     }
 
     @media (max-width: 640px) {
       .hero {
         padding: 40px 20px;
-        border-radius: 24px;
-      }
-
-      .nav {
-        border-radius: 24px;
       }
     }
   </style>
@@ -174,9 +164,23 @@
         <a class="button primary" href="scraper/">Open Scraper</a>
         <a class="button" href="privacy/">Privacy Policy</a>
         <a class="button" href="terms/">Terms of Service</a>
+        <a
+          class="button icon-link"
+          href="https://soundcloud.com/fader1/tracks"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open FadeThat SoundCloud tracks"
+        >
+          <svg class="sc-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 15h1v4H3v-4Zm3-2h1v6H6v-6Zm3-4h1v10H9V9Zm3-2h1v12h-1V7Zm2 8a4 4 0 0 1 4-4 4 4 0 1 1 0 8h-6v-4h2Z" />
+          </svg>
+          SoundCloud
+        </a>
       </div>
 
       <div class="note">
+        [ NOTICE ]
+        <br />
         Send <strong>zbarrons1@gmail.com</strong> a photo to trigger the Instagram post agent.
         Please use no subject line.
       </div>
