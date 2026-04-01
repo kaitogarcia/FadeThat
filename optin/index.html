@@ -186,13 +186,12 @@
 
       <form id="optin-form" novalidate>
         <div class="field">
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
-        </div>
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+1 555-555-5555" pattern="^\+?[0-9\s\-\(\)]{7,}$" title="Enter a valid phone number, e.g. +1 555-555-5555" /></div>
 
         <div class="checkbox-row">
           <input id="consent" name="consent" type="checkbox" required />
-          <label for="consent">I agree to the SMS terms listed above.</label>
+          <label for="consent">I agree to receive SMS messages from FadeThat for account verification and service-related notifications.</label>
         </div>
 
         <button type="submit">Submit</button>
