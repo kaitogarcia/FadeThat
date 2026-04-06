@@ -1,21 +1,9 @@
-@font-face {
-  font-family: "FTGriffo";
-  src: url("../public/fonts/GriffosFont.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "FTGriffoSCaps";
-  src: url("../public/fonts/GriffosSCapsFont.ttf") format("truetype");
-  font-display: swap;
-}
-
 :root {
-  --font-brand-local: "FTGriffo";
-  --font-brand-fallback: "Times New Roman";
-  --font-serif-fallback: "Palatino Linotype", "Book Antiqua", serif;
+  --font-brand-local: "Arial";
+  --font-brand-fallback: "Helvetica Neue";
+  --font-serif-fallback: Helvetica, sans-serif;
   --font-brand: var(--font-brand-local), var(--font-brand-fallback), var(--font-serif-fallback);
-  --font-display: "FTGriffoSCaps", var(--font-brand-local), var(--font-serif-fallback);
+  --font-display: var(--font-brand);
   --font-mono: "Courier New", Courier, monospace;
 
   --color-ink-900: #000000;
