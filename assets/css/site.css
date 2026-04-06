@@ -1,12 +1,12 @@
 @font-face {
   font-family: "FTGriffo";
-  src: url("/fonts/GriffosFont.ttf") format("truetype");
+  src: url("/assets/fonts/GriffosFont.ttf") format("truetype");
   font-display: swap;
 }
 
 @font-face {
   font-family: "FTGriffoSCaps";
-  src: url("/fonts/GriffosSCapsFont.ttf") format("truetype");
+  src: url("/assets/fonts/GriffosSCapsFont.ttf") format("truetype");
   font-display: swap;
 }
 
