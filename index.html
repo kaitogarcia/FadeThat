@@ -8,18 +8,16 @@
   <link rel="stylesheet" href="/assets/css/site.css" />
 </head>
 <body class="page-home">
-  <div class="orb a" aria-hidden="true"></div>
-  <div class="orb b" aria-hidden="true"></div>
-
   <div class="shell">
     <nav class="nav" aria-label="Primary">
-      <a class="fade-link" href="./" aria-current="page">fade</a>
+      <a class="fade-link" href="./" aria-current="page">fade that</a>
+      <a href="https://fadethat.life/tooling">submit</a>
       <a href="optin/">optin</a>
       <a href="privacy/">privacy</a>
       <a href="terms/">terms</a>
     </nav>
 
-    <main class="hero" id="hero-card">
+    <main class="hero">
       <h1>fade that</h1>
 
       <a
@@ -36,10 +34,6 @@
 
       <p class="lede">welcome</p>
 
-      <div class="actions">
-        <a class="button giant" href="https://fadethat.life/tooling">submit</a>
-      </div>
-
       <div class="note">
         [ NOTICE ]
         <br />
@@ -48,43 +42,5 @@
       </div>
     </main>
   </div>
-
-  <script>
-    const root = document.documentElement;
-    const hero = document.getElementById("hero-card");
-
-    let rafId = 0;
-    let pointerX = 50;
-    let pointerY = 50;
-
-    function paintMotion() {
-      root.style.setProperty("--px", `${pointerX}%`);
-      root.style.setProperty("--py", `${pointerY}%`);
-
-      const tiltX = ((pointerY - 50) / 50) * 4;
-      const tiltY = ((pointerX - 50) / 50) * -6;
-      hero.style.transform = `perspective(980px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`;
-
-      rafId = 0;
-    }
-
-    function queuePaint() {
-      if (!rafId) {
-        rafId = requestAnimationFrame(paintMotion);
-      }
-    }
-
-    window.addEventListener("pointermove", (event) => {
-      pointerX = (event.clientX / window.innerWidth) * 100;
-      pointerY = (event.clientY / window.innerHeight) * 100;
-      queuePaint();
-    });
-
-    window.addEventListener("blur", () => {
-      pointerX = 50;
-      pointerY = 50;
-      queuePaint();
-    });
-  </script>
 </body>
 </html>

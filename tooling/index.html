@@ -10,7 +10,7 @@
 <body class="page-tooling">
   <div class="shell">
     <nav class="nav" aria-label="Primary">
-      <a class="fade-link" href="../">fade</a>
+      <a class="fade-link" href="../">fade that</a>
       <a href="./" aria-current="page">tooling</a>
       <a href="../optin/">optin</a>
       <a href="../privacy/">privacy</a>
@@ -51,25 +51,5 @@
       </article>
     </section>
   </div>
-
-  <script>
-    const cards = document.querySelectorAll("[data-card]");
-
-    cards.forEach((card) => {
-      card.addEventListener("pointermove", (event) => {
-        const rect = card.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width;
-        const y = (event.clientY - rect.top) / rect.height;
-        const tiltX = (0.5 - y) * 8;
-        const tiltY = (x - 0.5) * 8;
-
-        card.style.transform = `translateY(-8px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`;
-      });
-
-      card.addEventListener("pointerleave", () => {
-        card.style.transform = "";
-      });
-    });
-  </script>
 </body>
 </html>
