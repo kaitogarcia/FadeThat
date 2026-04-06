@@ -115,14 +115,17 @@ body {
   color: var(--color-ink-900);
 }
 
-h1,
 h2,
-.nav a,
 .button,
 .page-scraper .eyebrow,
 .page-tooling .chip,
 .page-scraper .badge {
   font-family: var(--font-display);
+}
+
+h1,
+.nav a {
+  font-family: var(--font-brand);
 }
 
 a {
@@ -175,7 +178,10 @@ a {
 
 .page-home {
   overflow-x: hidden;
-  background: linear-gradient(150deg, var(--bg-home-base-a), var(--bg-home-base-b) 46%, var(--bg-home-base-c));
+  background:
+    radial-gradient(520px 260px at var(--px) var(--py), rgba(0, 0, 0, 0.1), transparent 70%),
+    linear-gradient(150deg, var(--bg-home-base-a), var(--bg-home-base-b) 46%, var(--bg-home-base-c));
+  transition: background 140ms linear;
 }
 
 .page-home .hero {
@@ -208,10 +214,17 @@ a {
   color: var(--color-ink-650);
 }
 
-.page-home .spotify-link {
+.page-home .social-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  margin: var(--space-0) var(--space-0) var(--space-8);
+}
+
+.page-home .social-link {
   width: 58px;
   height: 58px;
-  margin: var(--space-0) var(--space-0) var(--space-8);
+  margin: 0;
   color: var(--color-spotify);
   display: inline-flex;
   align-items: center;
@@ -224,22 +237,22 @@ a {
     background var(--duration-slow) var(--ease-standard);
 }
 
-.page-home .spotify-link svg {
+.page-home .social-link svg {
   width: 34px;
   height: 34px;
   fill: currentColor;
   transition: transform var(--duration-xl) var(--ease-standard);
 }
 
-.page-home .spotify-link:hover,
-.page-home .spotify-link:focus-visible {
+.page-home .social-link:hover,
+.page-home .social-link:focus-visible {
   transform: translateY(-4px) rotate(-3deg) scale(1.05);
   background: var(--color-spotify-surface);
   box-shadow: var(--shadow-hard-md);
 }
 
-.page-home .spotify-link:hover svg,
-.page-home .spotify-link:focus-visible svg {
+.page-home .social-link:hover svg,
+.page-home .social-link:focus-visible svg {
   transform: rotate(13deg) scale(1.08);
 }
 
