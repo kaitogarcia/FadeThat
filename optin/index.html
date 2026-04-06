@@ -3,178 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SMS Opt-In | FadeThat</title>
+  <title>sms optin | FadeThat</title>
   <meta name="description" content="FadeThat SMS opt-in form" />
-  <style>
-    :root {
-      --bg: #f4f4f4;
-      --surface: #ffffff;
-      --text: #111111;
-      --muted: #444444;
-      --line: #111111;
-      --success-bg: #eaf9ef;
-      --success-line: #1f7a3d;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Courier New", Courier, monospace;
-      color: var(--text);
-      background: var(--bg);
-    }
-
-    .shell {
-      width: min(860px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 24px 0 48px;
-    }
-
-    .nav {
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-      align-items: center;
-      padding: 18px 22px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-    }
-
-    .nav a {
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.98rem;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-
-    .nav a:hover,
-    .nav a:focus-visible {
-      text-decoration: underline;
-    }
-
-    .card {
-      margin-top: 24px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      padding: 30px 22px;
-    }
-
-    h1 {
-      margin: 0 0 14px;
-      font-size: clamp(1.8rem, 5vw, 2.8rem);
-      line-height: 1.1;
-    }
-
-    .copy {
-      margin: 0 0 20px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .copy p {
-      margin: 0 0 12px;
-    }
-
-    form {
-      border-top: 1px solid var(--line);
-      padding-top: 20px;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    input[type="email"] {
-      width: 100%;
-      min-height: 48px;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 0;
-      font: inherit;
-      color: var(--text);
-      background: #fff;
-    }
-
-    .checkbox-row {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      line-height: 1.45;
-      margin-bottom: 18px;
-    }
-
-    input[type="checkbox"] {
-      margin-top: 3px;
-      width: 16px;
-      height: 16px;
-      accent-color: #111111;
-    }
-
-    .checkbox-row label {
-      margin: 0;
-      font-weight: 400;
-    }
-
-    button {
-      border: 1px solid var(--text);
-      background: var(--text);
-      color: #ffffff;
-      font: inherit;
-      font-weight: 700;
-      min-height: 48px;
-      padding: 0 18px;
-      cursor: pointer;
-    }
-
-    button:hover,
-    button:focus-visible {
-      text-decoration: underline;
-    }
-
-    .banner {
-      margin-top: 18px;
-      padding: 14px 16px;
-      border: 1px solid var(--success-line);
-      background: var(--success-bg);
-      color: #0d4f26;
-      line-height: 1.4;
-      display: none;
-    }
-
-    .banner.show {
-      display: block;
-    }
-
-    @media (max-width: 640px) {
-      .card {
-        padding: 24px 16px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../styles/site.css" />
 </head>
-<body>
+<body class="page-optin">
   <div class="shell">
     <nav class="nav" aria-label="Primary">
-      <a href="../">Home</a>
-      <a href="../privacy/">Privacy</a>
-      <a href="../terms/">Terms</a>
-      <a href="./" aria-current="page">Opt-In</a>
+      <a class="fade-link" href="../">fade</a>
+      <a href="../tooling/">tooling</a>
+      <a href="./" aria-current="page">optin</a>
+      <a href="../privacy/">privacy</a>
+      <a href="../terms/">terms</a>
     </nav>
 
     <main class="card">
-      <h1>FadeThat SMS Opt-In</h1>
+      <h1>sms optin</h1>
 
       <section class="copy" aria-label="SMS terms">
         <p>FadeThat uses SMS messaging to send OTP for account verification and service-related notifications.</p>
@@ -186,15 +30,16 @@
 
       <form id="optin-form" novalidate>
         <div class="field">
-          <label for="phone">Phone</label>
-          <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+1 555-555-5555" pattern="^\+?[0-9\s\-\(\)]{7,}$" title="Enter a valid phone number, e.g. +1 555-555-5555" /></div>
+          <label for="email">email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
+        </div>
 
         <div class="checkbox-row">
           <input id="consent" name="consent" type="checkbox" required />
-          <label for="consent">I agree to receive SMS messages from FadeThat for account verification and service-related notifications.</label>
+          <label for="consent">I agree to the SMS terms listed above.</label>
         </div>
 
-        <button type="submit">Submit</button>
+        <button type="submit">submit</button>
       </form>
 
       <div id="success-banner" class="banner" role="status" aria-live="polite"></div>
@@ -244,6 +89,13 @@
       banner.textContent = "Success. Your opt-in has been recorded.";
       banner.classList.add("show");
       form.reset();
+    });
+
+    window.addEventListener("pointermove", (event) => {
+      const x = (event.clientX / window.innerWidth) * 100;
+      const y = (event.clientY / window.innerHeight) * 100;
+      document.documentElement.style.setProperty("--px", `${x}%`);
+      document.documentElement.style.setProperty("--py", `${y}%`);
     });
   </script>
 </body>

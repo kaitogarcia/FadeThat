@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tooling | FadeThat</title>
+  <meta name="description" content="FadeThat tooling landing page" />
+  <link rel="stylesheet" href="../styles/site.css" />
+</head>
+<body class="page-tooling">
+  <div class="shell">
+    <nav class="nav" aria-label="Primary">
+      <a class="fade-link" href="../">fade</a>
+      <a href="./" aria-current="page">tooling</a>
+      <a href="../optin/">optin</a>
+      <a href="../privacy/">privacy</a>
+      <a href="../terms/">terms</a>
+    </nav>
+
+    <section class="hero">
+      <h1>tooling</h1>
+      <p class="lede">this landing page holds cards for every hosted utility. scraper now lives here, and more cards can be dropped in as you launch new tools.</p>
+    </section>
+
+    <section class="cards" aria-label="tool cards">
+      <article class="card" data-card>
+        <div>
+          <span class="chip">live</span>
+          <h2>scraper</h2>
+          <p>match track titles with youtube URLs and prepare your download queue from a single workflow screen.</p>
+        </div>
+        <a class="cta" href="../scraper/">open scraper</a>
+      </article>
+
+      <article class="card" data-card>
+        <div>
+          <span class="chip">live</span>
+          <h2>sms optin</h2>
+          <p>collect explicit consent for service messages and keep submissions logged through the opt-in flow.</p>
+        </div>
+        <a class="cta" href="../optin/">open optin</a>
+      </article>
+
+      <article class="card placeholder" data-card>
+        <div>
+          <span class="chip">soon</span>
+          <h2>next drop</h2>
+          <p>add the next hosted workflow here when you are ready to publish the next internal tool.</p>
+        </div>
+        <p class="status-pill">slot ready</p>
+      </article>
+    </section>
+  </div>
+
+  <script>
+    const cards = document.querySelectorAll("[data-card]");
+
+    cards.forEach((card) => {
+      card.addEventListener("pointermove", (event) => {
+        const rect = card.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        const tiltX = (0.5 - y) * 8;
+        const tiltY = (x - 0.5) * 8;
+
+        card.style.transform = `translateY(-8px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`;
+      });
+
+      card.addEventListener("pointerleave", () => {
+        card.style.transform = "";
+      });
+    });
+  </script>
+</body>
+</html>
