@@ -20,7 +20,7 @@ export default function HomePage() {
           <div className="note">
             [ NOTICE ]
             <br />
-            Send <strong>zbarrons1@gmail.com</strong> a photo to trigger the Instagram post agent.
+            Send zbarrons1@gmail.com a photo to trigger the Instagram post agent.
             Please use no subject line.
           </div>
         </main>

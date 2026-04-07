@@ -15,7 +15,7 @@ export default function SocialLinks() {
 
       <a
         className="social-link instagram-link"
-        href="https://instagram.com/i_______am______"
+        href="https://instagram.com/i_______am_____"
         target="_blank"
         rel="noreferrer"
         aria-label="Open FadeThat on Instagram"

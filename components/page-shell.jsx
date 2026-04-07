@@ -1,9 +1,9 @@
 import Navbar from "@/components/navbar";
 
-export default function PageShell({ children }) {
+export default function PageShell({ children, showNav = true }) {
   return (
     <div className="shell">
-      <Navbar />
+      {showNav ? <Navbar /> : null}
       {children}
     </div>
   );

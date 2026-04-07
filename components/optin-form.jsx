@@ -6,7 +6,7 @@ const STORAGE_KEY = "fadethat_optin_submissions";
 
 export default function OptinForm() {
   const formRef = useRef(null);
-  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [consent, setConsent] = useState(false);
   const [bannerMessage, setBannerMessage] = useState("");
 
@@ -24,7 +24,7 @@ export default function OptinForm() {
     }
 
     const submission = {
-      email: email.trim(),
+      phoneNumber: phoneNumber.trim(),
       consent: true,
       source: "/optin",
       submittedAt: new Date().toISOString(),
@@ -39,7 +39,7 @@ export default function OptinForm() {
     }
 
     setBannerMessage("Success. Your opt-in has been recorded.");
-    setEmail("");
+    setPhoneNumber("");
     setConsent(false);
   };
 
@@ -47,16 +47,16 @@ export default function OptinForm() {
     <>
       <form id="optin-form" noValidate onSubmit={handleSubmit} ref={formRef}>
         <div className="field">
-          <label htmlFor="email">email</label>
+          <label htmlFor="phone">phone number</label>
           <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
+            id="phone"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
             required
-            placeholder="you@example.com"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            placeholder="(555) 555-5555"
+            value={phoneNumber}
+            onChange={(event) => setPhoneNumber(event.target.value)}
           />
         </div>
 

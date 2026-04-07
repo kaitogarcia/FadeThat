@@ -25,15 +25,14 @@ export default function Navbar() {
   const [fadeLinkHidden, setFadeLinkHidden] = useState(false);
 
   useEffect(() => {
-    setFadeLinkHidden(window.localStorage.getItem("fade_link_hidden") === "1");
-  }, []);
+    setFadeLinkHidden(false);
+  }, [pathname]);
 
   const hideFadeLink = () => {
     if (fadeLinkHidden) {
       return;
     }
     setFadeLinkHidden(true);
-    window.localStorage.setItem("fade_link_hidden", "1");
   };
 
   return (

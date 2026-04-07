@@ -114,17 +114,15 @@ b {
   font-weight: 400;
 }
 
+h1,
 h2,
-.button,
+h3,
+.nav a,
 .page-scraper .eyebrow,
 .page-tooling .chip,
 .page-scraper .badge {
-  font-family: var(--font-display);
-}
-
-h1,
-.nav a {
-  font-family: var(--font-brand);
+  font-family: var(--font-apercu);
+  letter-spacing: 0.04em;
 }
 
 a {
@@ -347,6 +345,7 @@ a {
   text-transform: lowercase;
 }
 
+.page-optin input[type="tel"],
 .page-optin input[type="email"] {
   width: 100%;
   min-height: 50px;

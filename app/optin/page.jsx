@@ -9,7 +9,7 @@ export const metadata = {
 export default function OptinPage() {
   return (
     <div className="page-optin">
-      <PageShell>
+      <PageShell showNav={false}>
         <main className="card">
           <h1>sms optin</h1>
 
