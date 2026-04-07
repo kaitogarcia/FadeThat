@@ -1,4 +1,5 @@
 import PageShell from "@/components/page-shell";
+import HomeHtmlClass from "@/components/home-html-class";
 import SocialLinks from "@/components/social-links";
 
 export const metadata = {
@@ -8,7 +9,8 @@ export const metadata = {
 
 export default function HomePage() {
   return (
-    <div className="page-home">
+    <div className="infinite">
+      <HomeHtmlClass />
       <PageShell>
         <main className="hero">
           <h1>fade that</h1>

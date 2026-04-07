@@ -1,11 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/", label: "fade that", className: "fade-link", exact: true },
-  { href: "https://fadethat.life/tooling", label: "submit", external: true },
   { href: "/tooling", label: "tooling" },
   { href: "/optin", label: "optin" },
   { href: "/privacy", label: "privacy" },
@@ -22,11 +22,25 @@ function isActivePath(pathname, href, exact) {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const [fadeLinkHidden, setFadeLinkHidden] = useState(false);
+
+  useEffect(() => {
+    setFadeLinkHidden(window.localStorage.getItem("fade_link_hidden") === "1");
+  }, []);
+
+  const hideFadeLink = () => {
+    if (fadeLinkHidden) {
+      return;
+    }
+    setFadeLinkHidden(true);
+    window.localStorage.setItem("fade_link_hidden", "1");
+  };
 
   return (
     <nav className="nav" aria-label="Primary">
       {navItems.map((item) => {
-        const className = item.className || undefined;
+        const isFadeLink = item.className === "fade-link";
+        const className = isFadeLink && fadeLinkHidden ? "fade-link is-gone" : item.className || undefined;
 
         if (item.external) {
           return (
@@ -44,6 +58,8 @@ export default function Navbar() {
             className={className}
             href={item.href}
             key={item.href}
+            onClick={isFadeLink ? hideFadeLink : undefined}
+            onMouseEnter={isFadeLink ? hideFadeLink : undefined}
           >
             {item.label}
           </Link>
