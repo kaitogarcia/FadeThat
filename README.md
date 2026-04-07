@@ -51,7 +51,15 @@ Runs on `http://localhost:8000`.
 
 ## Deployment notes
 
-- Vercel project root should be `apps/web`.
-- Railway service root should be `apps/api`.
+### Vercel (frontend)
+
+- In your Vercel project, set **Root Directory** to `apps/web`
+  - Dashboard path: `Project -> Settings -> Build and Deployment -> Root Directory`
+- Keep framework preset as `Next.js`
+- This repo also includes a root `vercel.json` that runs install/build/dev from `apps/web`
+
+### Railway (backend)
+
+- Railway service root should be `apps/api`
 - Railway start command can use `Procfile`:
   - `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
