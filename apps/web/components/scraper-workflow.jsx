@@ -2,6 +2,16 @@
 
 import { useMemo, useState } from "react";
 
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, "");
+
+function buildApiUrl(path) {
+  if (!apiBaseUrl) {
+    return path;
+  }
+
+  return `${apiBaseUrl}${path}`;
+}
+
 function parseTrackTitles(rawValue) {
   return rawValue
     .split(/\r?\n/)
@@ -24,7 +34,7 @@ async function mockScrapeRequest(payload) {
 
 async function scrapeTracks(payload) {
   try {
-    const response = await fetch("/api/scrape", {
+    const response = await fetch(buildApiUrl("/api/scrape"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -55,7 +65,7 @@ async function mockDownloadRequest(payload) {
 
 async function downloadCheckedTracks(payload) {
   try {
-    const response = await fetch("/api/download", {
+    const response = await fetch(buildApiUrl("/api/download"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

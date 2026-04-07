@@ -58,7 +58,6 @@ export default function Navbar() {
             href={item.href}
             key={item.href}
             onClick={isFadeLink ? hideFadeLink : undefined}
-            onMouseEnter={isFadeLink ? hideFadeLink : undefined}
           >
             {item.label}
           </Link>

@@ -152,13 +152,13 @@ a {
   color: var(--color-ink-900);
   text-decoration: none;
   letter-spacing: 0.05em;
-  transition: transform 120ms steps(2, end), opacity 120ms steps(2, end);
+  transition: none;
 }
 
 .nav a:hover,
 .nav a:focus-visible {
-  transform: translateY(-1px);
-  text-decoration: underline;
+  transform: none;
+  text-decoration: none;
 }
 
 .nav .fade-link.is-gone {
@@ -170,22 +170,15 @@ a {
 
 .infinite {
   overflow-x: hidden;
-  background:
-    radial-gradient(420px 180px at var(--px) var(--py), rgba(0, 0, 0, 0.08), transparent 72%),
-    repeating-linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.025) 0 1px,
-      transparent 1px 12px
-    ),
-    linear-gradient(150deg, var(--bg-home-base-a), var(--bg-home-base-b) 46%, var(--bg-home-base-c));
-  transition: background 100ms steps(2, end);
+  background: var(--bg-home-base-a);
+  transition: none;
 }
 
 .infinite .hero {
   margin-top: var(--space-10);
   padding: 62px var(--space-13);
   border: var(--line-strong) solid var(--color-ink-900);
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.98), rgba(240, 240, 240, 0.96));
+  background: var(--color-white);
   overflow: hidden;
   position: relative;
 }
@@ -228,7 +221,7 @@ a {
   justify-content: center;
   background: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  transition: transform 120ms steps(2, end), box-shadow 120ms steps(2, end);
+  transition: none;
 }
 
 .infinite .social-link svg {
@@ -239,9 +232,9 @@ a {
 
 .infinite .social-link:hover,
 .infinite .social-link:focus-visible {
-  transform: translateY(-1px);
-  background: var(--color-spotify-surface);
-  box-shadow: var(--shadow-hard-sm);
+  transform: none;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: none;
 }
 
 .button {
@@ -254,7 +247,7 @@ a {
   background: var(--color-ink-900);
   font-weight: 700;
   letter-spacing: 0.08em;
-  transition: transform 120ms steps(2, end), box-shadow 120ms steps(2, end);
+  transition: none;
 }
 
 .infinite .note {
@@ -263,19 +256,17 @@ a {
   background: rgba(255, 255, 255, 0.92);
   color: var(--color-ink-650);
   font-size: 1rem;
-  transition: transform 120ms steps(2, end), box-shadow 120ms steps(2, end);
+  transition: none;
 }
 
 .infinite .note:hover {
-  transform: translateX(2px);
-  box-shadow: -5px 5px 0 var(--color-ink-900);
+  transform: none;
+  box-shadow: none;
 }
 
 .page-optin {
-  background:
-    radial-gradient(460px 220px at var(--px) var(--py), rgba(0, 0, 0, 0.12), transparent 62%),
-    linear-gradient(150deg, var(--bg-optin-a), var(--bg-optin-b) 56%, var(--bg-optin-c));
-  transition: background 140ms linear;
+  background: var(--bg-optin-a);
+  transition: none;
 }
 
 .page-optin {
@@ -293,16 +284,7 @@ a {
 }
 
 .page-optin .card::after {
-  content: "";
-  position: absolute;
-  inset: auto -30% -120px -30%;
-  height: 220px;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0 18px,
-    rgba(0, 0, 0, 0.05) 18px 19px
-  );
-  pointer-events: none;
+  content: none;
 }
 
 .page-optin .card > * {
@@ -390,14 +372,14 @@ a {
   cursor: pointer;
   letter-spacing: 0.06em;
   text-transform: lowercase;
-  transition: transform 120ms steps(2, end), box-shadow 120ms steps(2, end);
+  transition: none;
 }
 
 .page-optin button:hover,
 .page-optin button:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 4px 4px 0 var(--color-ink-900);
-  text-decoration: underline;
+  transform: none;
+  box-shadow: none;
+  text-decoration: none;
 }
 
 .banner {
@@ -418,10 +400,7 @@ a {
   overflow-x: hidden;
   --shell-max: 1080px;
   --shell-gutter: 28px;
-  background:
-    radial-gradient(620px 290px at 8% 0%, rgba(0, 0, 0, 0.16), transparent 65%),
-    radial-gradient(440px 220px at 88% 22%, rgba(255, 255, 255, 0.5), transparent 70%),
-    linear-gradient(135deg, var(--bg-tooling-a), var(--bg-tooling-b) 52%, var(--bg-tooling-c));
+  background: var(--bg-tooling-a);
 }
 
 .page-tooling .hero {
@@ -434,16 +413,7 @@ a {
 }
 
 .page-tooling .hero::after {
-  content: "";
-  position: absolute;
-  inset: auto -20% -120px -20%;
-  height: 240px;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0 20px,
-    rgba(0, 0, 0, 0.07) 20px 21px
-  );
-  pointer-events: none;
+  content: none;
 }
 
 .page-tooling .hero > * {
@@ -483,12 +453,12 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 120ms steps(2, end), box-shadow 120ms steps(2, end);
+  transition: none;
 }
 
 .page-tooling .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hard-sm);
+  transform: none;
+  box-shadow: none;
   background: var(--color-white);
 }
 
@@ -529,18 +499,18 @@ a {
   text-decoration: none;
   text-transform: lowercase;
   letter-spacing: 0.06em;
-  transition: transform 120ms steps(2, end), box-shadow 120ms steps(2, end);
+  transition: none;
 }
 
 .page-tooling .cta:hover,
 .page-tooling .cta:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-hard-sm);
-  text-decoration: underline;
+  transform: none;
+  box-shadow: none;
+  text-decoration: none;
 }
 
 .page-tooling .placeholder {
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(235, 235, 235, 0.95));
+  background: var(--color-white);
 }
 
 .page-tooling .status-pill {
@@ -674,7 +644,7 @@ a {
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
-  transition: opacity 120ms steps(2, end), box-shadow 120ms steps(2, end);
+  transition: none;
 }
 
 .page-scraper button:hover,
@@ -879,8 +849,8 @@ a {
   }
 
   .page-tooling .card:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-hard-sm);
+    transform: none;
+    box-shadow: none;
   }
 }
 

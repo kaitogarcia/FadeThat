@@ -1,5 +1,4 @@
 import "./globals.css";
-import PointerTracker from "@/components/pointer-tracker";
 import localFont from "next/font/local";
 
 const griffo = localFont({
@@ -29,7 +28,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${griffo.variable} ${griffoSCaps.variable} ${apercuMonoRegular.variable}`}>
-        <PointerTracker />
         {children}
       </body>
     </html>
