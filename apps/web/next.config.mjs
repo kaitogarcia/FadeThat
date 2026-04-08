@@ -1,19 +1,20 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+function normalizeApiBaseUrl(rawValue) {
+  const trimmed = (rawValue || "").trim();
+  if (!trimmed) {
+    return "";
+  }
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const configuredApiBaseUrl = (
-  process.env.API_BASE_URL ||
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  ""
-).replace(/\/+$/, "");
+  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  return withProtocol.replace(/\/+$/, "");
+}
+
+const configuredApiBaseUrl = normalizeApiBaseUrl(
+  process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || ""
+);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  turbopack: {
-    root: __dirname,
-  },
   async rewrites() {
     if (!configuredApiBaseUrl) {
       return [];
