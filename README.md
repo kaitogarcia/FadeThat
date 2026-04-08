@@ -44,6 +44,10 @@ Runs on `http://localhost:8000`.
 
 - `NEXT_PUBLIC_API_BASE_URL` (example: `http://localhost:8000`)
   - Railway example: `https://<your-railway-service>.up.railway.app`
+- `API_BASE_URL` optional server-side proxy target for `/api/*` rewrites in Next.js
+  - local example: `http://localhost:8000`
+  - Railway example: `https://<your-railway-service>.up.railway.app`
+  - recommended for Vercel so browser calls to `https://www.fadethat.life/api/...` forward to Railway
 
 ### Backend (`apps/api/.env`)
 
