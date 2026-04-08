@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { href: "/", label: "fade that", className: "fade-link", exact: true },
+  { href: "/", label: "fade", className: "fade-link", exact: true },
   { href: "/tooling", label: "tooling" },
   { href: "/board", label: "board" },
   { href: "/optin", label: "optin" },
@@ -24,10 +24,6 @@ function isActivePath(pathname, href, exact) {
 export default function Navbar() {
   const pathname = usePathname();
   const [fadeLinkHidden, setFadeLinkHidden] = useState(false);
-
-  useEffect(() => {
-    setFadeLinkHidden(false);
-  }, [pathname]);
 
   const hideFadeLink = () => {
     if (fadeLinkHidden) {
@@ -58,6 +54,7 @@ export default function Navbar() {
             className={className}
             href={item.href}
             key={item.href}
+            onMouseEnter={isFadeLink ? hideFadeLink : undefined}
             onClick={isFadeLink ? hideFadeLink : undefined}
           >
             {item.label}

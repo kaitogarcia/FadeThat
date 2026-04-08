@@ -145,7 +145,7 @@ a {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-9);
   padding: var(--space-6) var(--space-9);
   border: var(--line-strong) solid var(--color-ink-900);
   background: rgba(255, 255, 255, 0.86);
@@ -167,9 +167,14 @@ a {
 
 .nav .fade-link.is-gone {
   opacity: 0;
-  animation: ascii-fadeout 140ms steps(2, end) forwards;
+  animation: ascii-fadeout 280ms ease forwards;
   transform: none;
   text-decoration: none;
+}
+
+.nav .fade-link {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  transition: opacity var(--duration-slow) var(--ease-standard);
 }
 
 .infinite {
@@ -540,7 +545,7 @@ a {
 }
 
 .page-scraper .nav {
-  gap: var(--space-7);
+  gap: var(--space-9);
   padding: var(--space-7) var(--space-9);
   background: var(--color-white);
 }
