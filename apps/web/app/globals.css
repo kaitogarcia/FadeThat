@@ -114,7 +114,6 @@ b {
   font-weight: 700;
 }
 
-h1,
 h2,
 h3,
 .nav a,
@@ -122,6 +121,11 @@ h3,
 .page-tooling .chip,
 .page-scraper .badge {
   font-family: var(--font-apercu);
+  letter-spacing: 0.04em;
+}
+
+h1 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: 0.04em;
 }
 
