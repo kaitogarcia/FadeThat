@@ -53,6 +53,9 @@ Runs on `http://localhost:8000`.
   - local example: `http://localhost:8000`
   - Railway example: `https://<your-railway-service>.up.railway.app`
 - `INSTAGRAM_POST_BUFFER_SECONDS` delay between posts in mass post jobs (default `10`)
+- `BOARD_DB_PATH` optional SQLite file path for board-note persistence
+  - default: `apps/api/runtime/board.db`
+  - Railway example with persistent disk: `/data/board.db`
 
 ## Deployment notes
 
@@ -71,3 +74,4 @@ Runs on `http://localhost:8000`.
 - Set backend env vars:
   - `ALLOWED_ORIGINS=https://<your-vercel-domain>`
   - `INSTAGRAM_PUBLIC_BASE_URL=https://<your-railway-service>.up.railway.app`
+  - `BOARD_DB_PATH=/data/board.db` (if using Railway volume mount)

@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { href: "/", label: "fade that", className: "fade-link", exact: true },
   { href: "/tooling", label: "tooling" },
+  { href: "/board", label: "board" },
   { href: "/optin", label: "optin" },
   { href: "/privacy", label: "privacy" },
   { href: "/terms", label: "terms" },

@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
+from .board_store import build_board_store
 from .instagram_manager import (
     GraphApiError,
     build_job_manager,
@@ -39,8 +40,21 @@ class InstagramBulkActionRequest(BaseModel):
     media_ids: list[str] = Field(default_factory=list)
 
 
+class BoardNote(BaseModel):
+    id: str = Field(min_length=1, max_length=120)
+    text: str = Field(default="", max_length=12000)
+    color: str = Field(min_length=3, max_length=32)
+    width: int = Field(default=250, ge=180, le=1200)
+    height: int = Field(default=250, ge=180, le=1200)
+
+
+class BoardNotesRequest(BaseModel):
+    notes: list[BoardNote] = Field(default_factory=list, max_length=500)
+
+
 app = FastAPI(title="my-app api")
 job_manager = build_job_manager()
+board_store = build_board_store()
 
 allowed_origins = parse_allowed_origins(os.getenv("ALLOWED_ORIGINS", ""))
 if allowed_origins:
@@ -61,6 +75,35 @@ def health() -> dict:
 @app.get("/api/hello")
 def hello(name: str = "world") -> dict:
     return {"message": f"Hello, {name}!"}
+
+
+@app.get("/api/board/notes")
+def get_board_notes() -> dict:
+    return {"notes": board_store.list_notes()}
+
+
+@app.put("/api/board/notes")
+def put_board_notes(body: BoardNotesRequest) -> dict:
+    normalized: list[dict] = []
+    seen_ids: set[str] = set()
+
+    for note in body.notes:
+        if note.id in seen_ids:
+            continue
+
+        seen_ids.add(note.id)
+        normalized.append(
+            {
+                "id": note.id,
+                "text": note.text,
+                "color": note.color,
+                "width": note.width,
+                "height": note.height,
+            }
+        )
+
+    board_store.replace_notes(normalized)
+    return {"notes": board_store.list_notes()}
 
 
 @app.post("/api/instagram/session")
