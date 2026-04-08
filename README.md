@@ -43,11 +43,16 @@ Runs on `http://localhost:8000`.
 ### Frontend (`apps/web/.env.local`)
 
 - `NEXT_PUBLIC_API_BASE_URL` (example: `http://localhost:8000`)
+  - Railway example: `https://<your-railway-service>.up.railway.app`
 
 ### Backend (`apps/api/.env`)
 
 - `ALLOWED_ORIGINS` comma-separated origins allowed by CORS
   - example: `http://localhost:3000,https://your-frontend.vercel.app`
+- `INSTAGRAM_PUBLIC_BASE_URL` public backend base URL used for uploaded image URLs in Instagram publish jobs
+  - local example: `http://localhost:8000`
+  - Railway example: `https://<your-railway-service>.up.railway.app`
+- `INSTAGRAM_POST_BUFFER_SECONDS` delay between posts in mass post jobs (default `10`)
 
 ## Deployment notes
 
@@ -63,3 +68,6 @@ Runs on `http://localhost:8000`.
 - Railway service root should be `apps/api`
 - Railway start command can use `Procfile`:
   - `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Set backend env vars:
+  - `ALLOWED_ORIGINS=https://<your-vercel-domain>`
+  - `INSTAGRAM_PUBLIC_BASE_URL=https://<your-railway-service>.up.railway.app`

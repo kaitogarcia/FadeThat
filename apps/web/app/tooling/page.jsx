@@ -47,6 +47,20 @@ export default function ToolingPage() {
             </Link>
           </article>
 
+          <article className="card">
+            <div>
+              <span className="chip">live</span>
+              <h2>manage instagram</h2>
+              <p>
+                connect a facebook graph token, post photo batches with progress polling, and run
+                bulk delete or archive actions across your instagram grid.
+              </p>
+            </div>
+            <Link className="cta" href="/instagram">
+              open manager
+            </Link>
+          </article>
+
           <article className="card placeholder">
             <div>
               <span className="chip">soon</span>
