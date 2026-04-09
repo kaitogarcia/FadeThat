@@ -48,7 +48,7 @@
   --bg-tooling-c: #e8e8e8;
   --bg-scraper: #f5f5f5;
   --bg-legal: #f4f4f4;
-  --bg-instagram: #f6f1e7;
+  --bg-instagram: #f7f7f7;
   --bg-board: #f8f2e6;
 
   --line-strong: 1px;
@@ -765,6 +765,12 @@ a {
   --shell-gutter: 30px;
   background: var(--bg-instagram);
   min-height: 100vh;
+  font-family: var(--font-brand);
+}
+
+.page-instagram h1,
+.page-instagram h2 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .page-instagram .shell {
@@ -791,7 +797,7 @@ a {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.76rem;
   letter-spacing: 0.03em;
   text-transform: none;
@@ -804,7 +810,7 @@ a {
   padding: 6px var(--space-4);
   background: var(--color-white);
   color: var(--color-ink-900);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.8rem;
 }
 
@@ -814,7 +820,7 @@ a {
   border: var(--line-strong) solid var(--color-ink-900);
   background: var(--color-ink-900);
   color: var(--color-white);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.8rem;
   padding: 0 var(--space-6);
   cursor: pointer;
@@ -835,7 +841,7 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.68rem;
   line-height: 1;
   background: var(--color-white);
@@ -850,7 +856,7 @@ a {
   border: var(--line-strong) solid var(--color-ink-900);
   background: var(--color-white);
   color: var(--color-ink-900);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.72rem;
   line-height: 1.45;
   padding: var(--space-4);
@@ -895,7 +901,7 @@ a {
   background: var(--color-white);
   display: grid;
   place-items: center;
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 1.5rem;
 }
 
@@ -957,7 +963,7 @@ a {
 
 .ig-eyebrow {
   margin: 0 0 var(--space-2);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.8rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -979,7 +985,7 @@ a {
 .ig-upload-label {
   display: block;
   margin-bottom: var(--space-2);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.82rem;
   letter-spacing: 0.05em;
 }
@@ -1005,7 +1011,7 @@ a {
   min-height: 42px;
   border: var(--line-strong) solid var(--color-ink-900);
   padding: 0 var(--space-6);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.84rem;
   letter-spacing: 0.05em;
   text-transform: lowercase;
@@ -1046,7 +1052,7 @@ a {
   border: var(--line-strong) solid var(--color-ink-900);
   background: #f4f4f4;
   padding: var(--space-4);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.8rem;
   white-space: pre-wrap;
 }
@@ -1061,7 +1067,7 @@ a {
 
 .ig-log-stream p {
   margin: 0 0 var(--space-2);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.76rem;
   line-height: 1.35;
 }
@@ -1069,14 +1075,15 @@ a {
 .ig-inline-error {
   margin: var(--space-3) 0 0;
   color: var(--color-ink-900);
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.82rem;
 }
 
 .ig-gallery {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-6);
+  grid-template-columns: repeat(3, minmax(0, 220px));
+  justify-content: center;
+  gap: var(--space-5);
 }
 
 .ig-media-card {
@@ -1084,6 +1091,16 @@ a {
   background: var(--color-white);
   overflow: hidden;
   position: relative;
+}
+
+.ig-media-card.is-selected {
+  border-color: var(--color-ink-600);
+}
+
+.ig-media-select-surface {
+  display: block;
+  position: relative;
+  cursor: pointer;
 }
 
 .ig-media-card img,
@@ -1101,29 +1118,56 @@ a {
   background: #f1f1f1;
   display: grid;
   place-items: center;
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.82rem;
 }
 
-.ig-select-toggle {
+.ig-media-select-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+.ig-media-card.is-selected .ig-media-select-surface::after {
+  background: rgba(140, 140, 140, 0.34);
+}
+
+.ig-media-checkbox {
   position: absolute;
   top: var(--space-3);
   left: var(--space-3);
   z-index: 3;
-  min-height: 30px;
-  border: var(--line-strong) solid var(--color-ink-900);
-  background: rgba(255, 255, 255, 0.9);
-  font-family: var(--font-apercu);
-  font-size: 0.74rem;
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
-  padding: 0 var(--space-3);
-  cursor: pointer;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 
-.ig-select-toggle.is-selected {
+.ig-select-check {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 4;
+  width: 22px;
+  height: 22px;
+  border: var(--line-strong) solid var(--color-ink-900);
+  background: rgba(255, 255, 255, 0.9);
+  display: grid;
+  place-items: center;
+}
+
+.ig-select-check::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background: transparent;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.ig-select-check.is-selected::before {
   background: var(--color-ink-900);
-  color: var(--color-white);
 }
 
 .ig-media-meta {
@@ -1138,7 +1182,7 @@ a {
 }
 
 .ig-media-meta a {
-  font-family: var(--font-apercu);
+  font-family: var(--font-brand);
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   text-transform: lowercase;
@@ -1505,7 +1549,8 @@ a {
   }
 
   .ig-gallery {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
   }
 
   .board-notes-area {
@@ -1514,12 +1559,6 @@ a {
 
   .board-note {
     width: min(100%, 280px) !important;
-  }
-}
-
-@media (max-width: 460px) {
-  .ig-gallery {
-    grid-template-columns: 1fr;
   }
 }
 

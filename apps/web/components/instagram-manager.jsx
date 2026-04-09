@@ -33,6 +33,8 @@ export default function InstagramManager() {
   const [token, setToken] = useState("");
   const [context, setContext] = useState(null);
   const [media, setMedia] = useState([]);
+  const [accessMode, setAccessMode] = useState("direct");
+  const [actionsRemaining, setActionsRemaining] = useState(null);
 
   const [bootLoading, setBootLoading] = useState(false);
   const [bootError, setBootError] = useState("");
@@ -43,6 +45,7 @@ export default function InstagramManager() {
   const [selectedMedia, setSelectedMedia] = useState(() => new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkStatus, setBulkStatus] = useState("No bulk action has run yet.");
+  const [bulkLogs, setBulkLogs] = useState([]);
 
   const [uploadFiles, setUploadFiles] = useState([]);
   const [job, setJob] = useState(null);
@@ -65,6 +68,20 @@ export default function InstagramManager() {
       ? `[done] status=${job.status} posted=${job.completed} failed=${job.failed}`
       : "[idle] waiting for a mass post job";
 
+  const getTokenForRequest = () => {
+    return token.trim();
+  };
+
+  const applyAccessMeta = (payload) => {
+    const mode = payload?.access_mode || "direct";
+    setAccessMode(mode);
+    if (mode === "baby") {
+      setActionsRemaining(Number(payload?.actions_remaining ?? 0));
+    } else {
+      setActionsRemaining(null);
+    }
+  };
+
   const refreshMedia = async () => {
     if (!hasToken || !igUserId) {
       return;
@@ -79,7 +96,7 @@ export default function InstagramManager() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          access_token: token.trim(),
+          access_token: getTokenForRequest(),
           ig_user_id: igUserId,
           media_limit: 60,
         }),
@@ -91,6 +108,7 @@ export default function InstagramManager() {
       }
 
       const payload = await response.json();
+      applyAccessMeta(payload);
       setMedia(Array.isArray(payload.media) ? payload.media : []);
       setContext((current) => {
         if (!current) {
@@ -111,7 +129,7 @@ export default function InstagramManager() {
 
   const handleBoot = async (event) => {
     event.preventDefault();
-    const normalized = token.trim();
+    const normalized = getTokenForRequest();
     if (!normalized) {
       return;
     }
@@ -136,10 +154,12 @@ export default function InstagramManager() {
       }
 
       const payload = await response.json();
+      applyAccessMeta(payload);
       setContext(payload);
       setMedia(Array.isArray(payload.media) ? payload.media : []);
       setSelectedMedia(new Set());
       setBulkStatus("No bulk action has run yet.");
+      setBulkLogs([]);
       setJob(null);
       setJobError("");
       setPollTick(0);
@@ -184,8 +204,9 @@ export default function InstagramManager() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          access_token: token.trim(),
+          access_token: getTokenForRequest(),
           action,
+          ig_user_id: igUserId,
           media_ids: sortedSelectedIds,
         }),
       });
@@ -196,8 +217,10 @@ export default function InstagramManager() {
       }
 
       const payload = await response.json();
+      applyAccessMeta(payload);
       const successCount = Array.isArray(payload.successes) ? payload.successes.length : 0;
       const failureCount = Array.isArray(payload.failures) ? payload.failures.length : 0;
+      setBulkLogs(Array.isArray(payload.logs) ? payload.logs : []);
       setBulkStatus(
         `${action} complete: ${successCount} success, ${failureCount} failed.`
       );
@@ -217,7 +240,7 @@ export default function InstagramManager() {
 
     setJobError("");
     const formData = new FormData();
-    formData.append("access_token", token.trim());
+    formData.append("access_token", getTokenForRequest());
     formData.append("ig_user_id", igUserId);
     uploadFiles.forEach((file) => {
       formData.append("files", file);
@@ -235,6 +258,7 @@ export default function InstagramManager() {
       }
 
       const payload = await response.json();
+      applyAccessMeta(payload);
       setJob(payload);
       setPollTick(0);
       setBulkStatus("Mass post agent started.");
@@ -369,12 +393,16 @@ export default function InstagramManager() {
           <p className="ig-page-meta">
             {context.page_name ? `Connected page: ${context.page_name}` : "Connected via Graph API token"}
           </p>
+          {accessMode === "baby" ? (
+            <p className="ig-page-meta">
+              <strong>{actionsRemaining ?? 0}</strong> action(s) remaining for baby access
+            </p>
+          ) : null}
         </div>
       </header>
 
       <section className="ig-tool-grid" aria-label="Instagram tooling controls">
         <article className="ig-panel">
-          <p className="ig-eyebrow">Feature 1</p>
           <h2>Mass Post Agent</h2>
           <p className="ig-subtle">Upload photos and post them one by one with a 10-second buffer.</p>
 
@@ -414,7 +442,6 @@ export default function InstagramManager() {
         </article>
 
         <article className="ig-panel">
-          <p className="ig-eyebrow">Feature 2</p>
           <h2>Mass Select + Delete/Archive</h2>
           <p className="ig-subtle">Select media directly from your grid and run bulk actions.</p>
 
@@ -447,6 +474,13 @@ export default function InstagramManager() {
           </div>
 
           <p className="ig-subtle">{bulkStatus}</p>
+          {bulkLogs.length ? (
+            <div className="ig-log-stream" aria-live="polite">
+              {bulkLogs.slice(-8).map((line, index) => (
+                <p key={`${index}-${line}`}>{line}</p>
+              ))}
+            </div>
+          ) : null}
           {mediaError ? <p className="ig-inline-error">{mediaError}</p> : null}
         </article>
       </section>
@@ -456,24 +490,28 @@ export default function InstagramManager() {
           const mediaPreview = item.media_url || item.thumbnail_url;
           const isSelected = selectedMedia.has(item.id);
           return (
-            <article className="ig-media-card" key={item.id}>
-              <button
-                className={`ig-select-toggle${isSelected ? " is-selected" : ""}`}
-                type="button"
-                onClick={() => toggleMediaSelection(item.id)}
-                aria-pressed={isSelected}
-              >
-                {isSelected ? "selected" : "select"}
-              </button>
-
-              {mediaPreview ? (
-                <img src={mediaPreview} alt="Instagram media" loading="lazy" />
-              ) : (
-                <div className="ig-empty-thumb">no preview</div>
-              )}
+            <article className={`ig-media-card${isSelected ? " is-selected" : ""}`} key={item.id}>
+              <label className="ig-media-select-surface">
+                <input
+                  className="ig-media-checkbox"
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleMediaSelection(item.id)}
+                  aria-label={`Select media ${item.id}`}
+                />
+                <span className={`ig-select-check${isSelected ? " is-selected" : ""}`} aria-hidden="true" />
+                {mediaPreview ? (
+                  <img src={mediaPreview} alt="Instagram media" loading="lazy" />
+                ) : (
+                  <div className="ig-empty-thumb">no preview</div>
+                )}
+              </label>
 
               <div className="ig-media-meta">
-                <p>{truncateCaption(item.caption || item.media_type || "Instagram media")}</p>
+                <p>
+                  <strong>{item.like_count || 0}</strong> likes{" "}
+                  {truncateCaption(item.caption || item.media_type || "Instagram media")}
+                </p>
                 {item.permalink ? (
                   <a href={item.permalink} target="_blank" rel="noreferrer">
                     open post
