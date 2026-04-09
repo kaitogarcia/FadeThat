@@ -351,7 +351,7 @@ class InstagramGraphClient:
         pages_response = self.get(
             "me/accounts",
             {
-                "fields": "id,name,instagram_business_account{id}",
+                "fields": "id,name,access_token,instagram_business_account{id}",
                 "limit": "100",
             },
         )
@@ -385,6 +385,29 @@ class InstagramGraphClient:
             status_code=400,
         )
 
+    def resolve_page_access_token_for_ig_user(self, ig_user_id: str) -> str | None:
+        normalized_ig_user_id = str(ig_user_id or "").strip()
+        if not normalized_ig_user_id:
+            return None
+
+        pages_response = self.get(
+            "me/accounts",
+            {
+                "fields": "id,name,access_token,instagram_business_account{id}",
+                "limit": "100",
+            },
+        )
+        pages = pages_response.get("data") or []
+        for page in pages:
+            instagram_business_account = page.get("instagram_business_account") or {}
+            page_ig_user_id = str(instagram_business_account.get("id") or "").strip()
+            if page_ig_user_id != normalized_ig_user_id:
+                continue
+            page_access_token = str(page.get("access_token") or "").strip()
+            if page_access_token:
+                return page_access_token
+        return None
+
     def get_ig_profile(self, ig_user_id: str) -> dict:
         profile = self.get(
             ig_user_id,
@@ -408,7 +431,7 @@ class InstagramGraphClient:
         response = self.get(
             f"{ig_user_id}/media",
             {
-                "fields": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp",
+                "fields": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count",
                 "limit": str(max(1, min(limit, 100))),
             },
         )
@@ -424,6 +447,7 @@ class InstagramGraphClient:
                     "thumbnail_url": entry.get("thumbnail_url") or "",
                     "permalink": entry.get("permalink") or "",
                     "timestamp": entry.get("timestamp") or "",
+                    "like_count": int(entry.get("like_count") or 0),
                 }
             )
         return normalized
@@ -489,16 +513,19 @@ class InstagramGraphClient:
         }
 
     def delete_media(self, media_id: str) -> dict:
+        logger.info("instagram_delete_media request media_id=%s", media_id)
         return self.delete(media_id)
 
     def archive_media(self, media_id: str) -> dict:
         attempts = [
             {"is_archived": "true"},
             {"is_hidden": "true"},
+            {"archive": "true"},
         ]
         last_error: GraphApiError | None = None
         for payload in attempts:
             try:
+                logger.info("instagram_archive_media request media_id=%s payload=%s", media_id, payload)
                 return self.post(media_id, payload)
             except GraphApiError as exc:
                 last_error = exc
@@ -506,8 +533,10 @@ class InstagramGraphClient:
         if last_error is None:
             raise GraphApiError("Unable to archive media item.", status_code=400)
         raise GraphApiError(
-            f"Archive is not supported for this media item/token. Last error: {last_error}",
-            status_code=last_error.status_code,
+            "Archive is not supported for this media item/token. "
+            "Meta's public Instagram Graph API does not provide a reliable archive endpoint for feed media. "
+            f"Last Graph API error: {last_error}",
+            status_code=max(400, last_error.status_code),
             payload=last_error.payload,
         )
 
@@ -667,14 +696,25 @@ class InstagramJobManager:
             return self._to_snapshot(job)
 
     def _run_job(self, *, job_id: str, access_token: str) -> None:
-        client = InstagramGraphClient(access_token)
+        base_client = InstagramGraphClient(access_token)
+        client = base_client
+        token_source = "input_token"
 
         with self._lock:
             job = self._jobs.get(job_id)
             if job is None:
                 return
+            try:
+                page_access_token = base_client.resolve_page_access_token_for_ig_user(job.ig_user_id)
+                if page_access_token:
+                    client = InstagramGraphClient(page_access_token)
+                    token_source = "page_access_token"
+            except GraphApiError as exc:
+                self._append_log(job, f"could not resolve page token, using original token ({exc})")
+
             self._set_status(job, "processing")
             self._append_log(job, "mass post agent started")
+            self._append_log(job, f"publish token source: {token_source}")
 
         for index in range(0, 10000):
             with self._lock:
@@ -781,22 +821,49 @@ def fetch_media_for_account(*, access_token: str, ig_user_id: str, media_limit: 
     }
 
 
-def run_bulk_media_action(*, access_token: str, action: str, media_ids: list[str]) -> dict:
-    client = InstagramGraphClient(access_token)
+def run_bulk_media_action(
+    *,
+    access_token: str,
+    action: str,
+    media_ids: list[str],
+    ig_user_id: str | None = None,
+) -> dict:
+    base_client = InstagramGraphClient(access_token)
     normalized_ids = [item.strip() for item in media_ids if item.strip()]
 
     if not normalized_ids:
         raise ValueError("No media IDs were supplied.")
 
+    action_client = base_client
+    token_source = "input_token"
+    normalized_ig_user_id = str(ig_user_id or "").strip()
+
+    if normalized_ig_user_id:
+        try:
+            page_access_token = base_client.resolve_page_access_token_for_ig_user(normalized_ig_user_id)
+            if page_access_token:
+                action_client = InstagramGraphClient(page_access_token)
+                token_source = "page_access_token"
+        except GraphApiError as exc:
+            logger.warning(
+                "could not resolve page access token for ig_user_id=%s; falling back to input token: %s",
+                normalized_ig_user_id,
+                exc,
+            )
+
     successes: list[dict] = []
     failures: list[dict] = []
+    logs: list[str] = [f"bulk action={action} token_source={token_source} items={len(normalized_ids)}"]
 
     for media_id in normalized_ids:
         try:
+            logs.append(f"start {action} media_id={media_id}")
             if action == "delete":
-                response = client.delete_media(media_id)
+                response = action_client.delete_media(media_id)
             else:
-                response = client.archive_media(media_id)
+                response = action_client.archive_media(media_id)
+            logger.info("bulk_action success action=%s media_id=%s", action, media_id)
+            logs.append(f"success media_id={media_id}")
             successes.append(
                 {
                     "media_id": media_id,
@@ -804,6 +871,8 @@ def run_bulk_media_action(*, access_token: str, action: str, media_ids: list[str
                 }
             )
         except Exception as exc:
+            logger.warning("bulk_action failure action=%s media_id=%s error=%s", action, media_id, exc)
+            logs.append(f"failed media_id={media_id} error={exc}")
             failures.append(
                 {
                     "media_id": media_id,
@@ -815,6 +884,8 @@ def run_bulk_media_action(*, access_token: str, action: str, media_ids: list[str
     return {
         "status": status,
         "action": action,
+        "token_source": token_source,
+        "logs": logs[-120:],
         "successes": successes,
         "failures": failures,
     }
