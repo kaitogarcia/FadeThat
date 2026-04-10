@@ -22,16 +22,11 @@ export default function BlogPage() {
           <h1>blog</h1>
 
           <div className="blog-chart" role="table" aria-label="Blog entries">
-            <div className="blog-chart-row blog-chart-head" role="row">
-              <span role="columnheader">entry date |</span>
-              <span role="columnheader">title |</span>
-            </div>
-
             {entries.map((entry) => (
               <div className="blog-chart-row" role="row" key={entry.href}>
-                <span role="cell">{entry.date} |</span>
+                <span role="cell">{entry.date} </span>
                 <Link role="cell" href={entry.href}>
-                  {entry.title} |
+                  {entry.title} 
                 </Link>
               </div>
             ))}
