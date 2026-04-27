@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, "");
 const ASCII_FRAMES = ["[|....]", "[/....]", "[-....]", "[\\....]"];
+const INSTAGRAM_MEDIA_PAGE_SIZE = 100;
+const MAX_MEDIA_PAGE_FETCHES = 200;
 
 function buildApiUrl(path) {
   if (!apiBaseUrl) {
@@ -27,6 +29,14 @@ function truncateCaption(value, max = 110) {
     return value;
   }
   return `${value.slice(0, max - 3)}...`;
+}
+
+function parseMediaCount(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return null;
+  }
+  return Math.floor(parsed);
 }
 
 export default function InstagramManager() {
@@ -82,6 +92,89 @@ export default function InstagramManager() {
     }
   };
 
+  const fetchMediaPage = async ({ targetIgUserId, afterCursor = null }) => {
+    const response = await fetch(buildApiUrl("/api/instagram/media"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        access_token: getTokenForRequest(),
+        ig_user_id: targetIgUserId,
+        media_limit: INSTAGRAM_MEDIA_PAGE_SIZE,
+        ...(afterCursor ? { after_cursor: afterCursor } : {}),
+      }),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload?.detail || `Failed to fetch media (${response.status}).`);
+    }
+
+    return response.json();
+  };
+
+  const loadAllMedia = async ({ targetIgUserId, seedPayload = null }) => {
+    const merged = [];
+    const seenIds = new Set();
+    let latestProfile = seedPayload?.profile || null;
+    let targetMediaCount = parseMediaCount(seedPayload?.profile?.media_count);
+    let nextCursor = null;
+    let pagesFetched = 0;
+
+    const consumePage = (payload) => {
+      applyAccessMeta(payload);
+      if (payload?.profile) {
+        latestProfile = payload.profile;
+        const nextTargetCount = parseMediaCount(payload.profile?.media_count);
+        if (nextTargetCount !== null) {
+          targetMediaCount = nextTargetCount;
+        }
+      }
+
+      const pageMedia = Array.isArray(payload?.media) ? payload.media : [];
+      pageMedia.forEach((item) => {
+        const mediaId = item?.id || "";
+        if (!mediaId || seenIds.has(mediaId)) {
+          return;
+        }
+        seenIds.add(mediaId);
+        merged.push(item);
+      });
+
+      return payload?.next_cursor || null;
+    };
+
+    if (seedPayload) {
+      nextCursor = consumePage(seedPayload);
+      pagesFetched = 1;
+    } else {
+      const payload = await fetchMediaPage({ targetIgUserId });
+      nextCursor = consumePage(payload);
+      pagesFetched = 1;
+    }
+
+    while (
+      nextCursor
+      && (targetMediaCount === null || merged.length < targetMediaCount)
+    ) {
+      if (pagesFetched >= MAX_MEDIA_PAGE_FETCHES) {
+        throw new Error(
+          `Stopped media sync after too many pages (${merged.length}/${targetMediaCount ?? "unknown"}).`
+        );
+      }
+
+      const payload = await fetchMediaPage({ targetIgUserId, afterCursor: nextCursor });
+      nextCursor = consumePage(payload);
+      pagesFetched += 1;
+    }
+
+    return {
+      media: targetMediaCount === null ? merged : merged.slice(0, targetMediaCount),
+      profile: latestProfile,
+    };
+  };
+
   const refreshMedia = async () => {
     if (!hasToken || !igUserId) {
       return;
@@ -90,25 +183,8 @@ export default function InstagramManager() {
     setMediaLoading(true);
     setMediaError("");
     try {
-      const response = await fetch(buildApiUrl("/api/instagram/media"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          access_token: getTokenForRequest(),
-          ig_user_id: igUserId,
-        }),
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(payload?.detail || `Failed to fetch media (${response.status}).`);
-      }
-
-      const payload = await response.json();
-      applyAccessMeta(payload);
-      setMedia(Array.isArray(payload.media) ? payload.media : []);
+      const payload = await loadAllMedia({ targetIgUserId: igUserId });
+      setMedia(payload.media);
       setContext((current) => {
         if (!current) {
           return current;
@@ -143,6 +219,7 @@ export default function InstagramManager() {
         },
         body: JSON.stringify({
           access_token: normalized,
+          media_limit: INSTAGRAM_MEDIA_PAGE_SIZE,
         }),
       });
 
@@ -152,9 +229,15 @@ export default function InstagramManager() {
       }
 
       const payload = await response.json();
-      applyAccessMeta(payload);
-      setContext(payload);
-      setMedia(Array.isArray(payload.media) ? payload.media : []);
+      const loaded = await loadAllMedia({
+        targetIgUserId: payload.ig_user_id,
+        seedPayload: payload,
+      });
+      setContext({
+        ...payload,
+        profile: loaded.profile || payload.profile,
+      });
+      setMedia(loaded.media);
       setSelectedMedia(new Set());
       setBulkStatus("No bulk action has run yet.");
       setBulkLogs([]);
