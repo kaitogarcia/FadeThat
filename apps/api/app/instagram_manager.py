@@ -427,22 +427,13 @@ class InstagramGraphClient:
             "website": profile.get("website") or "",
         }
 
-    def list_media_page(
-        self,
-        ig_user_id: str,
-        limit: int = 50,
-        after_cursor: str | None = None,
-    ) -> dict:
-        params = {
-            "fields": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count",
-            "limit": str(max(1, min(limit, 50))),
-        }
-        if after_cursor:
-            params["after"] = after_cursor
-
+    def list_media(self, ig_user_id: str, limit: int = 24) -> list[dict]:
         response = self.get(
             f"{ig_user_id}/media",
-            params,
+            {
+                "fields": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count",
+                "limit": str(max(1, min(limit, 100))),
+            },
         )
         data = response.get("data") or []
         normalized: list[dict] = []
@@ -459,17 +450,7 @@ class InstagramGraphClient:
                     "like_count": int(entry.get("like_count") or 0),
                 }
             )
-        paging = response.get("paging") or {}
-        cursors = paging.get("cursors") or {}
-        next_cursor = str(cursors.get("after") or "").strip() or None
-        return {
-            "media": normalized,
-            "next_cursor": next_cursor,
-        }
-
-    def list_media(self, ig_user_id: str, limit: int = 50) -> list[dict]:
-        payload = self.list_media_page(ig_user_id=ig_user_id, limit=limit)
-        return payload["media"]
+        return normalized
 
     def create_image_container(self, ig_user_id: str, image_url: str, caption: str) -> str:
         response = self.post(
@@ -816,17 +797,24 @@ class InstagramJobManager:
             return self._to_snapshot(job)
 
 
-def resolve_context_and_media(*, access_token: str, media_limit: int = 50) -> dict:
+def profile_media_limit(profile: dict, fallback: int = 24) -> int:
+    media_count = int(profile.get("media_count") or 0)
+    return media_count if media_count > 0 else fallback
+
+
+def resolve_context_and_media(*, access_token: str, media_limit: int = 24) -> dict:
     client = InstagramGraphClient(access_token)
     context = client.resolve_instagram_account()
-    media_payload = client.list_media_page(context["ig_user_id"], limit=media_limit)
+    media = client.list_media(
+        context["ig_user_id"],
+        limit=profile_media_limit(context["profile"], fallback=media_limit),
+    )
     return {
         "page_id": context["page_id"],
         "page_name": context["page_name"],
         "ig_user_id": context["ig_user_id"],
         "profile": context["profile"],
-        "media": media_payload["media"],
-        "next_cursor": media_payload["next_cursor"],
+        "media": media,
     }
 
 
@@ -834,21 +822,18 @@ def fetch_media_for_account(
     *,
     access_token: str,
     ig_user_id: str,
-    media_limit: int = 50,
-    after_cursor: str | None = None,
+    media_limit: int = 24,
 ) -> dict:
     client = InstagramGraphClient(access_token)
     profile = client.get_ig_profile(ig_user_id)
-    media_payload = client.list_media_page(
+    media = client.list_media(
         ig_user_id,
-        limit=media_limit,
-        after_cursor=after_cursor,
+        limit=profile_media_limit(profile, fallback=media_limit),
     )
     return {
         "ig_user_id": ig_user_id,
         "profile": profile,
-        "media": media_payload["media"],
-        "next_cursor": media_payload["next_cursor"],
+        "media": media,
     }
 
 

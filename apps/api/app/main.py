@@ -26,14 +26,13 @@ def parse_allowed_origins(raw: str) -> List[str]:
 
 class InstagramSessionRequest(BaseModel):
     access_token: str = Field(min_length=1)
-    media_limit: int = Field(default=50, ge=1, le=50)
+    media_limit: int = Field(default=24, ge=1, le=100)
 
 
 class InstagramMediaRequest(BaseModel):
     access_token: str = Field(min_length=1)
     ig_user_id: str = Field(min_length=3)
-    media_limit: int = Field(default=50, ge=1, le=50)
-    after_cursor: str | None = Field(default=None, min_length=1, max_length=512)
+    media_limit: int = Field(default=24, ge=1, le=100)
 
 
 class InstagramBulkActionRequest(BaseModel):
@@ -190,7 +189,6 @@ def instagram_media(body: InstagramMediaRequest, request: Request) -> dict:
             access_token=access_token,
             ig_user_id=body.ig_user_id.strip(),
             media_limit=body.media_limit,
-            after_cursor=(body.after_cursor or "").strip() or None,
         )
         return attach_access_meta(payload, access_mode, request)
     except GraphApiError as exc:
