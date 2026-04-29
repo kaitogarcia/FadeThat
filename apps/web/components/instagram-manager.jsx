@@ -589,8 +589,11 @@ export default function InstagramManager() {
 
               <div className="ig-media-meta">
                 <p>
-                  <strong>{item.like_count || 0}</strong> likes{" "}
-                  {truncateCaption(item.caption || item.media_type || "Instagram media")}
+                  <span className="ig-like-line">
+                    <strong>{item.like_count || 0}</strong>
+                    <span aria-label="likes" role="img">♡</span>
+                  </span>
+                  <span>{truncateCaption(item.caption || item.media_type || "Instagram media")}</span>
                 </p>
                 {item.permalink ? (
                   <a href={item.permalink} target="_blank" rel="noreferrer">

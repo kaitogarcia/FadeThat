@@ -1181,6 +1181,18 @@ a {
   color: var(--color-ink-650);
 }
 
+.ig-like-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-ink-900);
+}
+
+.ig-like-line + span {
+  display: block;
+  margin-top: var(--space-2);
+}
+
 .ig-media-meta a {
   font-family: var(--font-brand);
   font-size: 0.8rem;

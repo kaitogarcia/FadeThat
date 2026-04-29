@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import os
 import threading
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,13 +35,13 @@ class InstagramMediaRequest(BaseModel):
     access_token: str = Field(min_length=1)
     ig_user_id: str = Field(min_length=3)
     media_limit: int = Field(default=100, ge=1, le=100)
-    after_cursor: str | None = Field(default=None, min_length=1, max_length=512)
+    after_cursor: Optional[str] = Field(default=None, min_length=1, max_length=512)
 
 
 class InstagramBulkActionRequest(BaseModel):
     access_token: str = Field(min_length=1)
     action: Literal["delete", "archive"]
-    ig_user_id: str | None = Field(default=None, min_length=3)
+    ig_user_id: Optional[str] = Field(default=None, min_length=3)
     media_ids: list[str] = Field(default_factory=list)
 
 

@@ -461,10 +461,10 @@ class InstagramGraphClient:
             )
         paging = response.get("paging") or {}
         cursors = paging.get("cursors") or {}
-        next_cursor = str(cursors.get("after") or "").strip() or None
+        next_cursor = str(cursors.get("after") or "").strip() if paging.get("next") else ""
         return {
             "media": normalized,
-            "next_cursor": next_cursor,
+            "next_cursor": next_cursor or None,
         }
 
     def create_image_container(self, ig_user_id: str, image_url: str, caption: str) -> str:
