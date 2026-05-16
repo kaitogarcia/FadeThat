@@ -2,7 +2,7 @@ import PageShell from "@/components/page-shell";
 import HomeHtmlClass from "@/components/home-html-class";
 import SocialLinks from "@/components/social-links";
 import { cookies } from "next/headers";
-import { FRONT_AUTH_COOKIE, frontAuthToken } from "@/lib/front-auth";
+import { FRONT_AUTH_COOKIE, frontAuthToken, normalizeFrontAuthRedirect } from "@/lib/front-auth";
 
 export const metadata = {
   title: "FadeThat",
@@ -11,7 +11,7 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-function FrontPasswordGate({ hasError }) {
+function FrontPasswordGate({ hasError, nextPath }) {
   return (
     <div className="infinite">
       <HomeHtmlClass />
@@ -22,6 +22,7 @@ function FrontPasswordGate({ hasError }) {
 
           <form className="front-lock-form" action="/api/front-auth" method="post">
             <label htmlFor="front-password">Password</label>
+            <input type="hidden" name="next" value={nextPath} />
             <div className="front-lock-row">
               <input
                 id="front-password"
@@ -46,9 +47,10 @@ export default async function HomePage({ searchParams }) {
   const isAuthed = cookieStore.get(FRONT_AUTH_COOKIE)?.value === frontAuthToken();
   const resolvedSearchParams = await searchParams;
   const hasError = resolvedSearchParams?.front_error === "1";
+  const nextPath = normalizeFrontAuthRedirect(resolvedSearchParams?.next || "/");
 
   if (!isAuthed) {
-    return <FrontPasswordGate hasError={hasError} />;
+    return <FrontPasswordGate hasError={hasError} nextPath={nextPath} />;
   }
 
   return (

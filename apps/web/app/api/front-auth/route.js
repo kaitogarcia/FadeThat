@@ -1,14 +1,22 @@
 import { NextResponse } from "next/server";
-import { FRONT_AUTH_COOKIE, FRONT_PASSWORD, frontAuthToken } from "@/lib/front-auth";
+import {
+  FRONT_AUTH_COOKIE,
+  FRONT_PASSWORD,
+  frontAuthToken,
+  normalizeFrontAuthRedirect,
+} from "@/lib/front-auth";
 
 export async function POST(request) {
   const formData = await request.formData();
   const password = String(formData.get("password") || "");
-  const redirectUrl = new URL("/", request.url);
+  const nextPath = normalizeFrontAuthRedirect(String(formData.get("next") || "/"));
+  const redirectUrl = new URL(nextPath, request.url);
 
   if (password !== FRONT_PASSWORD) {
-    redirectUrl.searchParams.set("front_error", "1");
-    return NextResponse.redirect(redirectUrl, { status: 303 });
+    const failureUrl = new URL("/", request.url);
+    failureUrl.searchParams.set("front_error", "1");
+    failureUrl.searchParams.set("next", nextPath);
+    return NextResponse.redirect(failureUrl, { status: 303 });
   }
 
   const response = NextResponse.redirect(redirectUrl, { status: 303 });
