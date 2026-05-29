@@ -42,9 +42,9 @@ export default function StyleBookPage() {
 
             <nav className="stylebook-nav-demo" aria-label="Nav bar component demo">
               <a href="#">fade</a>
-              <a href="#">tooling</a>
-              <a href="#">blog</a>
-              <a href="#">board</a>
+              <a href="#">stuff</a>
+              <a href="#">privacy</a>
+              <a href="#">terms</a>
             </nav>
           </section>
         </article>

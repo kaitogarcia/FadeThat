@@ -1514,6 +1514,47 @@ a {
   color: var(--color-link);
 }
 
+.terms-optin-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-8);
+  align-items: center;
+  margin: var(--space-10) 0;
+  padding: var(--space-8);
+  border: var(--line-strong) solid var(--color-ink-900);
+  background: var(--color-white);
+}
+
+.terms-optin-card h2 {
+  margin: var(--space-1) 0 var(--space-3);
+  font-size: 1.35rem;
+}
+
+.terms-optin-card p {
+  margin: 0;
+}
+
+.terms-optin-kicker {
+  font-family: var(--font-apercu);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.terms-optin-card a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-size);
+  padding: 0 var(--space-8);
+  border: var(--line-strong) solid var(--color-ink-900);
+  background: var(--color-ink-900);
+  color: var(--color-white);
+  font-family: var(--font-apercu);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .page-legal ul {
   padding-left: var(--space-9);
 }
@@ -1570,6 +1611,15 @@ a {
   .page-tooling .card:hover {
     transform: none;
     box-shadow: none;
+  }
+
+  .terms-optin-card {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .terms-optin-card a {
+    width: 100%;
   }
 
   .board-plus {

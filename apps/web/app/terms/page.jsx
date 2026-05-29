@@ -1,3 +1,4 @@
+import Link from "next/link";
 import LegalShell from "@/components/legal-shell";
 
 export const metadata = {
@@ -12,6 +13,18 @@ export default function TermsPage() {
       <p className="updated">
         <strong>Last Updated:</strong> March 2026
       </p>
+
+      <section className="terms-optin-card" aria-label="SMS opt-in">
+        <div>
+          <p className="terms-optin-kicker">sms consent</p>
+          <h2>Opt in to FadeThat messages</h2>
+          <p>
+            Review the SMS terms, then submit the opt-in form when you want to receive service
+            messages from FadeThat.
+          </p>
+        </div>
+        <Link href="/optin">open optin</Link>
+      </section>
 
       <section className="notice">
         <strong>SMS Communications Terms</strong>

@@ -15,7 +15,7 @@ function FrontPasswordGate({ hasError, nextPath }) {
   return (
     <div className="infinite">
       <HomeHtmlClass />
-      <PageShell>
+      <PageShell showNav={false}>
         <main className="hero front-lock" aria-labelledby="front-lock-title">
           <h1 id="front-lock-title">fade that</h1>
           <p className="lede">password required</p>
