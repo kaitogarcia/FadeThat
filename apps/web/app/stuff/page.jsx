@@ -12,44 +12,39 @@ export default function StuffPage() {
       <PageShell>
         <section className="hero">
           <h1>stuff</h1>
-          <p className="lede">
-            a small drawer for the useful things: tools, posts, notes, and whatever gets shipped
-            next.
-          </p>
+          <p className="lede">shipping all tooling here</p>
         </section>
 
         <section className="cards" aria-label="stuff cards">
           <article className="card">
             <div>
-              <span className="chip">live</span>
-              <h2>scraper</h2>
+              <h2>setlist to mp3</h2>
               <p>
                 match track titles with youtube URLs and prepare your download queue from a single
                 workflow screen.
               </p>
             </div>
             <Link className="cta" href="/scraper">
-              open scraper
+              open
             </Link>
           </article>
 
           <article className="card">
             <div>
-              <span className="chip">live</span>
-              <h2>manage instagram</h2>
+              <h2>instagram post agent</h2>
               <p>
                 connect a facebook graph token, post photo batches with progress polling, and run
                 bulk delete or archive actions across your instagram grid.
               </p>
             </div>
             <Link className="cta" href="/instagram">
-              open manager
+              open
             </Link>
           </article>
 
           <article className="card">
             <div>
-              <span className="chip">live</span>
+              <span className="chip chip-live">live</span>
               <h2>blog</h2>
               <p>
                 read notes, style references, and the small archive of pages that belong behind the
@@ -57,33 +52,21 @@ export default function StuffPage() {
               </p>
             </div>
             <Link className="cta" href="/blog">
-              open blog
+              open
             </Link>
           </article>
 
           <article className="card">
             <div>
-              <span className="chip">live</span>
+              <span className="chip chip-live">live</span>
               <h2>board</h2>
               <p>
                 keep a shared sticky-note surface for quick thoughts, links, and scratch work.
               </p>
             </div>
             <Link className="cta" href="/board">
-              open board
+              open
             </Link>
-          </article>
-
-          <article className="card placeholder">
-            <div>
-              <span className="chip">soon</span>
-              <h2>next drop</h2>
-              <p>
-                add the next hosted workflow here when you are ready to publish the next internal
-                thing.
-              </p>
-            </div>
-            <p className="status-pill">slot ready</p>
           </article>
         </section>
       </PageShell>

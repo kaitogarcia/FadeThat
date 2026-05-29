@@ -167,14 +167,17 @@ a {
 
 .nav .fade-link.is-gone {
   opacity: 0;
-  animation: ascii-fadeout 280ms ease forwards;
+  animation: ascii-fadeout 560ms ease forwards;
   transform: none;
   text-decoration: none;
 }
 
 .nav .fade-link {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  display: inline-flex;
+  animation: fade-float 6s ease-in-out infinite;
   transition: opacity var(--duration-slow) var(--ease-standard);
+  will-change: transform;
 }
 
 .infinite {
@@ -539,6 +542,8 @@ a {
 
 .page-tooling .chip {
   display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: var(--space-6);
   border: var(--line-strong) solid var(--color-ink-900);
   padding: 6px var(--space-3);
@@ -547,6 +552,15 @@ a {
   text-transform: lowercase;
   width: fit-content;
   background: var(--color-white);
+}
+
+.page-tooling .chip-live::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #d00000;
+  flex: 0 0 auto;
 }
 
 .page-tooling .cta {
@@ -1571,6 +1585,17 @@ a {
   }
   to {
     opacity: 0;
+  }
+}
+
+@keyframes fade-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
   }
 }
 

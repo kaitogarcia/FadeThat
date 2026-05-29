@@ -61,13 +61,6 @@ export default async function HomePage({ searchParams }) {
           <h1>fade that</h1>
           <SocialLinks />
           <p className="lede">welcome</p>
-
-          <div className="note">
-            [ NOTICE ]
-            <br />
-            Send zbarrons1@gmail.com a photo to trigger the Instagram post agent.
-            Please use no subject line.
-          </div>
         </main>
       </PageShell>
     </div>
