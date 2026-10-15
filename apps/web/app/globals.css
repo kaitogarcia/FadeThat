@@ -1428,6 +1428,16 @@ a {
   margin-top: var(--space-9);
 }
 
+.mac-stack .mac-stack-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  text-transform: lowercase;
+}
+
+.mac-stack a {
+  color: #1d4fff;
+}
+
 .stylebook-block h2 {
   margin: 0 0 var(--space-5);
   font-family: "Courier New", Courier, monospace;

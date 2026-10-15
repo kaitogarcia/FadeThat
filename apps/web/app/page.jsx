@@ -1,6 +1,7 @@
 import PageShell from "@/components/page-shell";
 import HomeHtmlClass from "@/components/home-html-class";
 import SocialLinks from "@/components/social-links";
+import MacStack from "@/components/mac-stack";
 import { cookies } from "next/headers";
 import { FRONT_AUTH_COOKIE, frontAuthToken, normalizeFrontAuthRedirect } from "@/lib/front-auth";
 
@@ -62,6 +63,7 @@ export default async function HomePage({ searchParams }) {
           <SocialLinks />
           <p className="lede">welcome</p>
         </main>
+        <MacStack />
       </PageShell>
     </div>
   );
