@@ -1448,6 +1448,13 @@ a {
   letter-spacing: 0.02em;
 }
 
+/* Match the "fade that" h1 */
+.mac-stack .mac-stack-title,
+.mac-stack .stylebook-block h2 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: 0.04em;
+}
+
 .font-demo {
   margin: 0 0 var(--space-3);
   font-size: clamp(1rem, 2vw, 1.2rem);
