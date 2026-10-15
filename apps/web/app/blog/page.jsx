@@ -3,11 +3,6 @@ import PageShell from "@/components/page-shell";
 
 const entries = [
   {
-    date: "2026-10-14",
-    title: "my mac stack",
-    href: "/blog/mac-stack",
-  },
-  {
     date: "2026-04-09",
     title: "fade that style book",
     href: "/blog/stylebook",
