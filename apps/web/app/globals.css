@@ -1438,6 +1438,10 @@ a {
   color: #1d4fff;
 }
 
+.mac-stack-desc {
+  white-space: pre-line;
+}
+
 .stylebook-block h2 {
   margin: 0 0 var(--space-5);
   font-family: "Courier New", Courier, monospace;
