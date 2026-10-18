@@ -1463,97 +1463,113 @@ a {
   color: var(--g-muted);
 }
 
-/* Counters: one-line pills laid out side by side */
+/* Counters: plain lines of text — `label   − x + / y` — laid out side by side */
 .goal-counters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  column-gap: 28px;
+  row-gap: 10px;
   padding: 16px 0;
   border-top: 1px solid var(--g-line);
   border-bottom: 1px solid var(--g-line);
 }
 
 .goal-counter {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 40px;
-  border-radius: 999px;
-  background: var(--g-surface-2);
-  padding: 0 6px 0 14px;
-  transition: background-color 160ms var(--g-ease);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
-.goal-counter:hover {
-  background: #ebebef;
-}
-
-.goal-counter-label {
-  width: 96px;
+.goal-counter input {
   min-width: 0;
   border: 0;
+  border-bottom: 1px solid transparent;
   background: none;
-  padding: 0;
+  padding: 0 1px;
   font: inherit;
-  font-size: 0.88rem;
   color: var(--g-text);
   outline: none;
-  text-overflow: ellipsis;
+  transition: border-color 160ms var(--g-ease);
 }
 
-.goal-counter-label::placeholder {
+.goal-counter input:hover,
+.goal-counter input:focus {
+  border-bottom-color: var(--g-line-strong);
+}
+
+.goal-counter input::placeholder {
   color: var(--g-faint);
 }
 
+.goal-counter-label {
+  margin-right: 4px;
+  color: var(--g-muted);
+}
+
+.goal-counter-label:focus {
+  color: var(--g-text);
+}
+
 .goal-counter-controls {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
+  align-self: center;
 }
 
 .goal-counter-controls button {
-  width: 28px;
-  height: 28px;
+  width: 16px;
+  height: 16px;
   display: grid;
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: var(--g-surface);
-  box-shadow: var(--g-shadow-sm);
+  background: var(--g-surface-2);
   padding: 0;
-  font-size: 1rem;
+  font-size: 11px;
   line-height: 1;
-  color: var(--g-text);
+  color: var(--g-muted);
   cursor: pointer;
-  transition: transform 120ms var(--g-ease), background-color 120ms var(--g-ease);
+  transition: background-color 120ms var(--g-ease), color 120ms var(--g-ease), transform 120ms var(--g-ease);
 }
 
 .goal-counter-controls button:hover {
-  background: #fafafa;
+  background: var(--g-accent);
+  color: var(--g-surface);
 }
 
 .goal-counter-controls button:active {
-  transform: scale(0.9);
+  transform: scale(0.88);
 }
 
 .goal-counter-value {
-  min-width: 2.2ch;
+  min-width: 1.6ch;
   text-align: center;
-  font-size: 0.98rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
+.goal-counter-slash {
+  color: var(--g-faint);
+}
+
+.goal-counter-target {
+  font-variant-numeric: tabular-nums;
+}
+
 .goal-counter-remove {
-  width: 22px;
-  height: 22px;
+  align-self: center;
+  width: 16px;
+  height: 16px;
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 50%;
   background: none;
   padding: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   line-height: 1;
   color: var(--g-faint);
   cursor: pointer;
@@ -1577,21 +1593,17 @@ a {
 }
 
 .goal-counter-add {
-  height: 40px;
-  border: 1px dashed var(--g-line-strong);
-  border-radius: 999px;
+  border: 0;
   background: none;
-  padding: 0 16px;
-  font-size: 0.88rem;
-  color: var(--g-muted);
+  padding: 0;
+  font-size: 0.9rem;
+  color: var(--g-faint);
   cursor: pointer;
-  transition: color 160ms var(--g-ease), border-color 160ms var(--g-ease), background-color 160ms var(--g-ease);
+  transition: color 160ms var(--g-ease);
 }
 
 .goal-counter-add:hover:not(:disabled) {
-  border-color: var(--g-text);
   color: var(--g-text);
-  background: var(--g-surface-2);
 }
 
 .goal-counter-add:disabled {
@@ -1673,6 +1685,22 @@ a {
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  color: var(--g-muted);
+}
+
+/* Days that have passed get a thin red X over them. */
+.goal-cal-day.is-past::after {
+  content: "";
+  position: absolute;
+  inset: 18%;
+  background:
+    linear-gradient(45deg, transparent calc(50% - 0.75px), #ff3b30 calc(50% - 0.75px), #ff3b30 calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+    linear-gradient(-45deg, transparent calc(50% - 0.75px), #ff3b30 calc(50% - 0.75px), #ff3b30 calc(50% + 0.75px), transparent calc(50% + 0.75px));
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.goal-cal-day.is-past {
   color: var(--g-muted);
 }
 
