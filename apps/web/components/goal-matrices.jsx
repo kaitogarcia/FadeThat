@@ -15,6 +15,7 @@ import GoalCalendar from "@/components/goal-calendar";
 
 // Unsaved edits are kept in the browser until Save commits them to the repo.
 const LOCAL_KEY = "fadethat-goal-matrices-draft";
+const NOTES_COLLAPSED_KEY = "fadethat-goal-notes-collapsed";
 const SUB_COLORS = ["#b9d6ff", "#fff3a8", "#ffd6a5", "#ffc1d5", "#d6c2ff", "#c4f0d2", "#ffe0f0", "#d2ecff"];
 // The 8 positions around the center of a 3x3 grid, in reading order.
 const RING = [0, 1, 2, 3, 5, 6, 7, 8];
@@ -286,6 +287,33 @@ export default function GoalMatrices({ initialData }) {
   const [pendingImages, setPendingImages] = useState({});
   const [sessionImages, setSessionImages] = useState({});
   const [lightbox, setLightbox] = useState(null);
+  // Matrix ids whose notes panel is collapsed; a per-browser view preference, not saved data.
+  const [collapsedNotes, setCollapsedNotes] = useState(() => new Set());
+
+  useEffect(() => {
+    try {
+      const ids = JSON.parse(window.localStorage.getItem(NOTES_COLLAPSED_KEY) || "[]");
+      if (Array.isArray(ids)) {
+        setCollapsedNotes(new Set(ids.filter((id) => typeof id === "string")));
+      }
+    } catch {
+      // Storage unavailable: every notes panel starts open.
+    }
+  }, []);
+
+  const toggleNotes = (matrixId) => {
+    setCollapsedNotes((current) => {
+      const next = new Set(current);
+      if (next.has(matrixId)) next.delete(matrixId);
+      else next.add(matrixId);
+      try {
+        window.localStorage.setItem(NOTES_COLLAPSED_KEY, JSON.stringify([...next]));
+      } catch {
+        // Storage unavailable: the toggle still works for this visit.
+      }
+      return next;
+    });
+  };
 
   const stageRef = useRef(null);
   const worldRef = useRef(null);
@@ -417,7 +445,7 @@ export default function GoalMatrices({ initialData }) {
   useLayoutEffect(() => {
     placeCamera(animateRef.current);
     animateRef.current = true;
-  }, [view, matrices.length, isLoaded, placeCamera]);
+  }, [view, matrices.length, isLoaded, collapsedNotes, placeCamera]);
 
   // Re-fit when the stage changes size (window resize, calendar column wrapping).
   useEffect(() => {
@@ -663,7 +691,7 @@ export default function GoalMatrices({ initialData }) {
               >
                 <div className="goal-card-row">
                 <div
-                  className="goal-notes"
+                  className={`goal-notes${collapsedNotes.has(matrix.id) ? " is-collapsed" : ""}`}
                   onDragOver={(event) => {
                     if (interactive && [...event.dataTransfer.types].includes("Files")) {
                       event.preventDefault();
@@ -677,6 +705,27 @@ export default function GoalMatrices({ initialData }) {
                     }
                   }}
                 >
+                  <button
+                    type="button"
+                    className="goal-notes-toggle"
+                    tabIndex={interactive ? 0 : -1}
+                    aria-expanded={!collapsedNotes.has(matrix.id)}
+                    aria-label={collapsedNotes.has(matrix.id) ? "Show notes" : "Hide notes"}
+                    onClick={(event) => {
+                      if (interactive) {
+                        event.stopPropagation();
+                        toggleNotes(matrix.id);
+                      }
+                    }}
+                  >
+                    {collapsedNotes.has(matrix.id) ? "›" : "‹"}
+                  </button>
+                  {collapsedNotes.has(matrix.id) ? (
+                    matrix.notes || matrix.images.length ? (
+                      <span className="goal-notes-dot" aria-hidden="true" title="has notes" />
+                    ) : null
+                  ) : (
+                  <>
                   <textarea
                     className="goal-notes-text"
                     aria-label="Notes"
@@ -753,6 +802,8 @@ export default function GoalMatrices({ initialData }) {
                       })}
                     </div>
                   ) : null}
+                  </>
+                  )}
                 </div>
                 <MatrixChart
                   matrix={matrix}
