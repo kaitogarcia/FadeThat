@@ -1463,13 +1463,13 @@ a {
   color: var(--g-muted);
 }
 
-/* Counters: plain lines of text — `label   − x + / y` — laid out side by side */
+/* Counters: plain lines of text — `label   − x + / y` */
+/* Stacked vertically, one counter per line. */
 .goal-counters {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 28px;
-  row-gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   padding: 16px 0;
   border-top: 1px solid var(--g-line);
   border-bottom: 1px solid var(--g-line);
@@ -1478,13 +1478,16 @@ a {
 .goal-counter {
   display: inline-flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
   font-size: 0.95rem;
   line-height: 1.4;
 }
 
 .goal-counter input {
   min-width: 0;
+  /* Width hugs the text so the − / + sit right after the name (the `size` attribute is the fallback). */
+  field-sizing: content;
+  min-inline-size: 1ch;
   border: 0;
   border-bottom: 1px solid transparent;
   background: none;
@@ -1505,7 +1508,6 @@ a {
 }
 
 .goal-counter-label {
-  margin-right: 4px;
   color: var(--g-muted);
 }
 
