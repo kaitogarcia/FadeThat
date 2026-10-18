@@ -1,66 +1,42 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { emptyMatrix, normalizeCalendar, normalizeMatrices } from "@/lib/goal-matrix";
+import GoalCalendar from "@/components/goal-calendar";
 
-const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, "");
-const LOCAL_KEY = "fadethat-goal-matrices";
+// Unsaved edits are kept in the browser until Save commits them to the repo.
+const LOCAL_KEY = "fadethat-goal-matrices-draft";
 const SUB_COLORS = ["#b9d6ff", "#fff3a8", "#ffd6a5", "#ffc1d5", "#d6c2ff", "#c4f0d2", "#ffe0f0", "#d2ecff"];
 // The 8 positions around the center of a 3x3 grid, in reading order.
 const RING = [0, 1, 2, 3, 5, 6, 7, 8];
 const ZOOM_MS = 720;
 
-function buildApiUrl(path) {
-  return apiBaseUrl ? `${apiBaseUrl}${path}` : path;
-}
-
-function makeId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-function emptyMatrix() {
-  return {
-    id: makeId(),
-    goal: "",
-    subs: Array.from({ length: 8 }, () => ({ goal: "", actions: Array(8).fill("") })),
-  };
-}
-
-function normalizeMatrix(raw) {
-  if (!raw || typeof raw !== "object") {
+// Draft = { baseSavedAt, matrices, calendar }: edits made on top of the saved version from `baseSavedAt`.
+function readDraft() {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(LOCAL_KEY) || "null");
+    if (!parsed || !Array.isArray(parsed.matrices)) {
+      return null;
+    }
+    return {
+      baseSavedAt: Number(parsed.baseSavedAt) || 0,
+      matrices: normalizeMatrices(parsed.matrices),
+      calendar: parsed.calendar ? normalizeCalendar(parsed.calendar) : null,
+    };
+  } catch {
     return null;
   }
-  const subs = Array.from({ length: 8 }, (_, k) => {
-    const sub = Array.isArray(raw.subs) ? raw.subs[k] : null;
-    const actions = Array.isArray(sub?.actions) ? sub.actions : [];
-    return {
-      goal: typeof sub?.goal === "string" ? sub.goal : "",
-      actions: Array.from({ length: 8 }, (_, a) => (typeof actions[a] === "string" ? actions[a] : "")),
-    };
-  });
-  return {
-    id: typeof raw.id === "string" && raw.id ? raw.id : makeId(),
-    goal: typeof raw.goal === "string" ? raw.goal : "",
-    subs,
-  };
 }
 
-function readLocal() {
+function writeDraft(draft) {
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(LOCAL_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed.map(normalizeMatrix).filter(Boolean) : [];
+    if (draft) {
+      window.localStorage.setItem(LOCAL_KEY, JSON.stringify(draft));
+    } else {
+      window.localStorage.removeItem(LOCAL_KEY);
+    }
   } catch {
-    return [];
-  }
-}
-
-function writeLocal(matrices) {
-  try {
-    window.localStorage.setItem(LOCAL_KEY, JSON.stringify(matrices));
-  } catch {
-    // Private mode or full storage: the server copy still saves.
+    // Private mode or full storage: edits still save with the Save button.
   }
 }
 
@@ -195,10 +171,14 @@ function MatrixChart({ matrix, interactive, onEdit, onBlockClick, onCellFocus, r
   );
 }
 
-export default function GoalMatrices() {
-  const [matrices, setMatrices] = useState([]);
+export default function GoalMatrices({ initialData }) {
+  const initialSavedAt = Number(initialData?.savedAt) || 0;
+  const [matrices, setMatrices] = useState(() => normalizeMatrices(initialData?.matrices));
+  const [calendar, setCalendar] = useState(() => normalizeCalendar(initialData?.calendar));
   const [isLoaded, setIsLoaded] = useState(false);
-  const [saveState, setSaveState] = useState("idle");
+  // clean | dirty | saving | saved | error
+  const [saveState, setSaveState] = useState("clean");
+  const [saveMessage, setSaveMessage] = useState("");
   // level 0 = all matrices, 1 = one matrix, 2 = one block of a matrix
   const [view, setView] = useState({ level: 0, matrixId: null, block: null });
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -208,74 +188,77 @@ export default function GoalMatrices() {
   const cardRefs = useRef(new Map());
   const blockRefs = useRef(new Map());
   const animateRef = useRef(false);
-  const saveTimerRef = useRef(null);
+  const savedRef = useRef({ savedAt: initialSavedAt, json: JSON.stringify({ matrices, calendar }) });
   const wheelRef = useRef({ acc: 0, lockedUntil: 0 });
   const viewRef = useRef(view);
   viewRef.current = view;
 
   const activeMatrix = matrices.find((m) => m.id === view.matrixId) || null;
 
-  // Load: server first, browser copy as fallback.
+  // Restore unsaved edits, unless a newer save has been deployed since they were made.
   useEffect(() => {
-    let ignore = false;
-
-    async function load() {
-      const local = readLocal();
-      let next = local;
-      try {
-        const response = await fetch(buildApiUrl("/api/goals/matrices"), { cache: "no-store" });
-        if (!response.ok) {
-          throw new Error(String(response.status));
-        }
-        const payload = await response.json();
-        const remote = (Array.isArray(payload.matrices) ? payload.matrices : [])
-          .map(normalizeMatrix)
-          .filter(Boolean);
-        if (remote.length > 0 || local.length === 0) {
-          next = remote;
-        }
-      } catch {
-        // Server not reachable: keep the browser copy.
+    const draft = readDraft();
+    if (draft && draft.baseSavedAt >= initialSavedAt) {
+      setMatrices(draft.matrices);
+      if (draft.calendar) {
+        setCalendar(draft.calendar);
       }
-      if (!ignore) {
-        setMatrices(next);
-        setIsLoaded(true);
-      }
+    } else {
+      writeDraft(null);
     }
+    setIsLoaded(true);
+  }, [initialSavedAt]);
 
-    load();
-    return () => {
-      ignore = true;
-    };
-  }, []);
-
-  // Save: browser copy right away, server debounced.
+  // Track unsaved changes and keep a browser draft of them.
   useEffect(() => {
     if (!isLoaded) {
-      return undefined;
+      return;
     }
-    writeLocal(matrices);
+    const dirty = JSON.stringify({ matrices, calendar }) !== savedRef.current.json;
+    writeDraft(dirty ? { baseSavedAt: savedRef.current.savedAt, matrices, calendar } : null);
+    setSaveState((state) => (state === "saving" ? state : dirty ? "dirty" : state === "dirty" ? "clean" : state));
+  }, [matrices, calendar, isLoaded]);
+
+  const docRef = useRef({ matrices, calendar });
+  docRef.current = { matrices, calendar };
+
+  const save = useCallback(async () => {
+    const snapshot = docRef.current;
+    const json = JSON.stringify(snapshot);
     setSaveState("saving");
-
-    window.clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = window.setTimeout(async () => {
-      try {
-        const response = await fetch(buildApiUrl("/api/goals/matrices"), {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ matrices }),
-        });
-        if (!response.ok) {
-          throw new Error(String(response.status));
-        }
-        setSaveState("saved");
-      } catch {
-        setSaveState("local");
+    setSaveMessage("");
+    try {
+      const response = await fetch("/api/goals/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: json,
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || `Save failed (${response.status}).`);
       }
-    }, 600);
+      savedRef.current = { savedAt: payload.savedAt, json };
+      const stillDirty = JSON.stringify(docRef.current) !== json;
+      writeDraft(stillDirty ? { baseSavedAt: payload.savedAt, ...docRef.current } : null);
+      setSaveState(stillDirty ? "dirty" : "saved");
+      setSaveMessage(payload.mode === "github" ? "saved to code · live in about a minute" : "saved to data/goals.json");
+    } catch (error) {
+      setSaveState("error");
+      setSaveMessage(error.message || "Save failed.");
+    }
+  }, []);
 
-    return () => window.clearTimeout(saveTimerRef.current);
-  }, [matrices, isLoaded]);
+  // Cmd/Ctrl + S saves.
+  useEffect(() => {
+    const onKey = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        save();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [save]);
 
   // Camera: fit the current target into the stage.
   const placeCamera = useCallback((animate) => {
@@ -319,10 +302,15 @@ export default function GoalMatrices() {
     animateRef.current = true;
   }, [view, matrices.length, isLoaded, placeCamera]);
 
+  // Re-fit when the stage changes size (window resize, calendar column wrapping).
   useEffect(() => {
-    const onResize = () => placeCamera(false);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    const stage = stageRef.current;
+    if (!stage || typeof ResizeObserver === "undefined") {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => placeCamera(false));
+    observer.observe(stage);
+    return () => observer.disconnect();
   }, [placeCamera]);
 
   const zoomOut = useCallback(() => {
@@ -442,6 +430,9 @@ export default function GoalMatrices() {
 
   return (
     <section className="goal-wrap" aria-label="Goal matrices">
+      <GoalCalendar calendar={calendar} onChange={setCalendar} />
+
+      <div className="goal-main">
       <div className="goal-hud goal-hud-top">
         <nav className="goal-crumbs" aria-label="Zoom level">
           <button type="button" onClick={() => setView({ level: 0, matrixId: null, block: null })}>
@@ -476,6 +467,14 @@ export default function GoalMatrices() {
           ) : null}
           <button type="button" onClick={addMatrix}>
             + new
+          </button>
+          <button
+            type="button"
+            className={saveState === "dirty" || saveState === "error" ? "goal-save is-dirty" : "goal-save"}
+            onClick={save}
+            disabled={saveState === "saving"}
+          >
+            {saveState === "saving" ? "saving..." : "save"}
           </button>
           <button type="button" onClick={zoomOut} disabled={view.level === 0} aria-label="Zoom out">
             −
@@ -562,17 +561,18 @@ export default function GoalMatrices() {
               ? "type in any cell · click a block to zoom in · esc to zoom out"
               : "type in any cell · click a nearby block to pan · esc to zoom out"}
         </p>
-        <p role="status">
-          {!isLoaded
-            ? "loading..."
-            : saveState === "saving"
-              ? "saving..."
-              : saveState === "saved"
-                ? "saved"
-                : saveState === "local"
-                  ? "saved on this device"
-                  : "ready"}
+        <p role="status" className={saveState === "error" ? "goal-save-error" : undefined}>
+          {saveState === "saving"
+            ? "saving..."
+            : saveState === "dirty"
+              ? "unsaved changes · ⌘S to save"
+              : saveState === "error"
+                ? `not saved: ${saveMessage}`
+                : saveState === "saved"
+                  ? saveMessage
+                  : "all changes saved"}
         </p>
+      </div>
       </div>
     </section>
   );

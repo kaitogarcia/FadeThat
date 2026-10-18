@@ -1,5 +1,6 @@
 import PageShell from "@/components/page-shell";
 import GoalMatrices from "@/components/goal-matrices";
+import goalsData from "@/data/goals.json";
 
 export const metadata = {
   title: "Goals | FadeThat",
@@ -10,7 +11,7 @@ export default function GoalsPage() {
   return (
     <div className="page-goals">
       <PageShell>
-        <GoalMatrices />
+        <GoalMatrices initialData={goalsData} />
       </PageShell>
     </div>
   );
