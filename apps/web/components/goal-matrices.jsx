@@ -1,7 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { MAX_NOTES, emptyMatrix, normalizeCalendar, normalizeMatrices } from "@/lib/goal-matrix";
+import {
+  IMAGE_ID_PATTERN,
+  MAX_IMAGES,
+  MAX_NOTES,
+  emptyMatrix,
+  imagePath,
+  makeId,
+  normalizeCalendar,
+  normalizeMatrices,
+} from "@/lib/goal-matrix";
 import GoalCalendar from "@/components/goal-calendar";
 
 // Unsaved edits are kept in the browser until Save commits them to the repo.
@@ -11,17 +20,62 @@ const SUB_COLORS = ["#b9d6ff", "#fff3a8", "#ffd6a5", "#ffc1d5", "#d6c2ff", "#c4f
 const RING = [0, 1, 2, 3, 5, 6, 7, 8];
 const ZOOM_MS = 720;
 
-// Draft = { baseSavedAt, matrices, calendar }: edits made on top of the saved version from `baseSavedAt`.
+const MAX_IMAGE_EDGE = 1600;
+
+// Shrink a pasted image in the browser before it is saved: webp where supported, jpeg otherwise.
+async function compressImage(file) {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, MAX_IMAGE_EDGE / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const context = canvas.getContext("2d");
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close?.();
+
+  const toBlob = (type, quality) => new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+  let blob = await toBlob("image/webp", 0.82);
+  let ext = "webp";
+  if (!blob || blob.type !== "image/webp") {
+    blob = await toBlob("image/jpeg", 0.85);
+    ext = "jpg";
+  }
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  return { ext, dataUrl };
+}
+
+function imageFiles(list) {
+  return [...(list || [])]
+    .map((item) => (item instanceof File ? item : item.kind === "file" ? item.getAsFile() : null))
+    .filter((file) => file && file.type.startsWith("image/"));
+}
+
+// Draft = { baseSavedAt, matrices, calendar, images }: edits made on top of the saved version from
+// `baseSavedAt`. `images` holds pasted images (id -> data URL) that have not been saved yet.
 function readDraft() {
   try {
     const parsed = JSON.parse(window.localStorage.getItem(LOCAL_KEY) || "null");
     if (!parsed || !Array.isArray(parsed.matrices)) {
       return null;
     }
+    const images = {};
+    for (const [id, src] of Object.entries(parsed.images || {})) {
+      if (IMAGE_ID_PATTERN.test(id) && typeof src === "string" && src.startsWith("data:image/")) {
+        images[id] = src;
+      }
+    }
     return {
       baseSavedAt: Number(parsed.baseSavedAt) || 0,
       matrices: normalizeMatrices(parsed.matrices),
       calendar: parsed.calendar ? normalizeCalendar(parsed.calendar) : null,
+      images,
     };
   } catch {
     return null;
@@ -182,6 +236,10 @@ export default function GoalMatrices({ initialData }) {
   // level 0 = all matrices, 1 = one matrix, 2 = one block of a matrix
   const [view, setView] = useState({ level: 0, matrixId: null, block: null });
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Pasted images not saved yet (id -> data URL), and ones saved this session but maybe not deployed.
+  const [pendingImages, setPendingImages] = useState({});
+  const [sessionImages, setSessionImages] = useState({});
+  const [lightbox, setLightbox] = useState(null);
 
   const stageRef = useRef(null);
   const worldRef = useRef(null);
@@ -200,6 +258,7 @@ export default function GoalMatrices({ initialData }) {
     const draft = readDraft();
     if (draft && draft.baseSavedAt >= initialSavedAt) {
       setMatrices(draft.matrices);
+      setPendingImages(draft.images);
       if (draft.calendar) {
         setCalendar(draft.calendar);
       }
@@ -215,31 +274,43 @@ export default function GoalMatrices({ initialData }) {
       return;
     }
     const dirty = JSON.stringify({ matrices, calendar }) !== savedRef.current.json;
-    writeDraft(dirty ? { baseSavedAt: savedRef.current.savedAt, matrices, calendar } : null);
+    writeDraft(dirty ? { baseSavedAt: savedRef.current.savedAt, matrices, calendar, images: pendingImages } : null);
     setSaveState((state) => (state === "saving" ? state : dirty ? "dirty" : state === "dirty" ? "clean" : state));
-  }, [matrices, calendar, isLoaded]);
+  }, [matrices, calendar, pendingImages, isLoaded]);
 
   const docRef = useRef({ matrices, calendar });
   docRef.current = { matrices, calendar };
+  const pendingRef = useRef(pendingImages);
+  pendingRef.current = pendingImages;
 
   const save = useCallback(async () => {
     const snapshot = docRef.current;
     const json = JSON.stringify(snapshot);
+    // Send only unsaved images the notes still use.
+    const used = new Set(snapshot.matrices.flatMap((m) => m.images.map((image) => image.id)));
+    const sent = Object.fromEntries(Object.entries(pendingRef.current).filter(([id]) => used.has(id)));
     setSaveState("saving");
     setSaveMessage("");
     try {
       const response = await fetch("/api/goals/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: json,
+        body: JSON.stringify({
+          ...snapshot,
+          images: Object.fromEntries(Object.entries(sent).map(([id, src]) => [id, src.split(",")[1]])),
+        }),
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
         throw new Error(payload.error || `Save failed (${response.status}).`);
       }
       savedRef.current = { savedAt: payload.savedAt, json };
+      // Keep showing saved images from memory until the redeploy serves them.
+      setSessionImages((current) => ({ ...current, ...sent }));
+      const remaining = Object.fromEntries(Object.entries(pendingRef.current).filter(([id]) => !(id in sent)));
+      setPendingImages(remaining);
       const stillDirty = JSON.stringify(docRef.current) !== json;
-      writeDraft(stillDirty ? { baseSavedAt: payload.savedAt, ...docRef.current } : null);
+      writeDraft(stillDirty ? { baseSavedAt: payload.savedAt, ...docRef.current, images: remaining } : null);
       setSaveState(stillDirty ? "dirty" : "saved");
       setSaveMessage(payload.mode === "github" ? "saved to code · live in about a minute" : "saved to data/goals.json");
     } catch (error) {
@@ -358,6 +429,23 @@ export default function GoalMatrices({ initialData }) {
     setMatrices((current) => current.map((m) => (m.id === matrixId ? update(m) : m)));
   };
 
+  // Pasted or dropped images: shrink, keep as unsaved, and attach to the matrix's notes.
+  const addImages = async (matrixId, files) => {
+    for (const file of files) {
+      try {
+        const { ext, dataUrl } = await compressImage(file);
+        const id = makeId();
+        setPendingImages((current) => ({ ...current, [id]: dataUrl }));
+        editMatrix(matrixId, (m) =>
+          m.images.length >= MAX_IMAGES ? m : { ...m, images: [...m.images, { id, ext }] }
+        );
+      } catch {
+        setSaveState("error");
+        setSaveMessage("Could not read the pasted image.");
+      }
+    }
+  };
+
   // Tabbing into a block outside the current view pans the camera to it.
   const handleCellFocus = (matrixId, block) => {
     const v = viewRef.current;
@@ -366,10 +454,14 @@ export default function GoalMatrices({ initialData }) {
     }
   };
 
-  // Esc zooms out.
+  // Esc closes an open image first, then zooms out.
   useEffect(() => {
     const onKey = (event) => {
       if (event.key !== "Escape") {
+        return;
+      }
+      if (lightbox) {
+        setLightbox(null);
         return;
       }
       if (document.activeElement?.tagName === "TEXTAREA") {
@@ -379,7 +471,7 @@ export default function GoalMatrices({ initialData }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [zoomOut]);
+  }, [zoomOut, lightbox]);
 
   // Wheel / trackpad pinch: one zoom step per gesture.
   useEffect(() => {
@@ -389,8 +481,8 @@ export default function GoalMatrices({ initialData }) {
     }
 
     const onWheel = (event) => {
-      // Let long notes scroll instead of zooming.
-      const notes = event.target.closest?.(".goal-notes-text");
+      // Let long notes and image lists scroll instead of zooming.
+      const notes = event.target.closest?.(".goal-notes-text, .goal-notes-images");
       if (notes && notes.scrollHeight > notes.clientHeight && !event.ctrlKey) {
         return;
       }
@@ -524,24 +616,98 @@ export default function GoalMatrices({ initialData }) {
                 }}
               >
                 <div className="goal-card-row">
-                <textarea
-                  className="goal-notes-text"
-                  aria-label="Notes"
-                  value={matrix.notes}
-                  placeholder="notes: why this matters, ideas, progress..."
-                  maxLength={MAX_NOTES}
-                  tabIndex={interactive ? 0 : -1}
-                  spellCheck={false}
-                  onFocus={() => {
-                    if (viewRef.current.level === 2) {
-                      openMatrix(matrix.id);
+                <div
+                  className="goal-notes"
+                  onDragOver={(event) => {
+                    if (interactive && [...event.dataTransfer.types].includes("Files")) {
+                      event.preventDefault();
                     }
                   }}
-                  onChange={(event) => {
-                    const notes = event.target.value;
-                    editMatrix(matrix.id, (m) => ({ ...m, notes }));
+                  onDrop={(event) => {
+                    const files = imageFiles(event.dataTransfer.files);
+                    if (interactive && files.length) {
+                      event.preventDefault();
+                      addImages(matrix.id, files);
+                    }
                   }}
-                />
+                >
+                  <textarea
+                    className="goal-notes-text"
+                    aria-label="Notes"
+                    value={matrix.notes}
+                    placeholder="notes: why this matters, ideas, progress... paste images too"
+                    maxLength={MAX_NOTES}
+                    tabIndex={interactive ? 0 : -1}
+                    spellCheck={false}
+                    onFocus={() => {
+                      if (viewRef.current.level === 2) {
+                        openMatrix(matrix.id);
+                      }
+                    }}
+                    onPaste={(event) => {
+                      const files = imageFiles(event.clipboardData?.items);
+                      if (files.length) {
+                        event.preventDefault();
+                        addImages(matrix.id, files);
+                      }
+                    }}
+                    onChange={(event) => {
+                      const notes = event.target.value;
+                      editMatrix(matrix.id, (m) => ({ ...m, notes }));
+                    }}
+                  />
+                  {matrix.images.length ? (
+                    <div className="goal-notes-images">
+                      {matrix.images.map((image) => {
+                        const src = pendingImages[image.id] || sessionImages[image.id] || imagePath(image);
+                        return (
+                          <figure className="goal-note-image" key={image.id}>
+                            <button
+                              type="button"
+                              className="goal-note-image-open"
+                              tabIndex={interactive ? 0 : -1}
+                              aria-label="Open image"
+                              onClick={(event) => {
+                                if (interactive) {
+                                  event.stopPropagation();
+                                  setLightbox(src);
+                                }
+                              }}
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={src}
+                                alt=""
+                                loading="lazy"
+                                draggable={false}
+                                onError={(event) => {
+                                  event.currentTarget.closest("figure")?.setAttribute("data-missing", "");
+                                }}
+                              />
+                            </button>
+                            <button
+                              type="button"
+                              className="goal-note-image-remove"
+                              tabIndex={interactive ? 0 : -1}
+                              aria-label="Remove image"
+                              onClick={(event) => {
+                                if (interactive) {
+                                  event.stopPropagation();
+                                  editMatrix(matrix.id, (m) => ({
+                                    ...m,
+                                    images: m.images.filter((item) => item.id !== image.id),
+                                  }));
+                                }
+                              }}
+                            >
+                              ×
+                            </button>
+                          </figure>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
                 <MatrixChart
                   matrix={matrix}
                   interactive={interactive}
@@ -599,6 +765,13 @@ export default function GoalMatrices({ initialData }) {
         </p>
       </div>
       </div>
+
+      {lightbox ? (
+        <button type="button" className="goal-lightbox" onClick={() => setLightbox(null)} aria-label="Close image">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={lightbox} alt="" />
+        </button>
+      ) : null}
     </section>
   );
 }

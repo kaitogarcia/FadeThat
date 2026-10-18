@@ -1,6 +1,29 @@
 export const MAX_MATRICES = 100;
 export const MAX_TEXT = 400;
 export const MAX_NOTES = 4000;
+export const MAX_IMAGES = 30;
+export const IMAGE_ID_PATTERN = /^[a-z0-9-]{8,64}$/;
+export const IMAGE_EXTS = ["webp", "jpg", "png"];
+
+// Pasted note images live in the repo at public/goal-images/<id>.<ext>.
+export function imagePath(image) {
+  return `/goal-images/${image.id}.${image.ext}`;
+}
+
+function normalizeImages(list) {
+  const seen = new Set();
+  return (Array.isArray(list) ? list : [])
+    .filter(
+      (image) =>
+        image &&
+        IMAGE_ID_PATTERN.test(image.id) &&
+        IMAGE_EXTS.includes(image.ext) &&
+        !seen.has(image.id) &&
+        seen.add(image.id)
+    )
+    .slice(0, MAX_IMAGES)
+    .map((image) => ({ id: image.id, ext: image.ext }));
+}
 
 export function makeId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -18,6 +41,7 @@ export function emptyMatrix() {
     id: makeId(),
     goal: "",
     notes: "",
+    images: [],
     subs: Array.from({ length: 8 }, () => ({ goal: "", actions: Array(8).fill("") })),
   };
 }
@@ -38,6 +62,7 @@ export function normalizeMatrix(raw) {
     id: typeof raw.id === "string" && raw.id ? raw.id.slice(0, 120) : makeId(),
     goal: text(raw.goal),
     notes: typeof raw.notes === "string" ? raw.notes.slice(0, MAX_NOTES) : "",
+    images: normalizeImages(raw.images),
     subs,
   };
 }

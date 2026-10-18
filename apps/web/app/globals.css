@@ -1855,11 +1855,135 @@ a {
   flex: none;
 }
 
-.goal-notes-text {
+.goal-notes {
   width: 300px;
   flex: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   border: var(--line-strong) solid var(--color-ink-900);
   background: #fffbea;
+}
+
+.goal-world.is-overview .goal-notes {
+  pointer-events: none;
+}
+
+.goal-notes-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 55%;
+  overflow-y: auto;
+  padding: 0 12px 12px;
+}
+
+.goal-note-image {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 1;
+  border: var(--line-strong) solid rgba(0, 0, 0, 0.25);
+  background: var(--color-white);
+}
+
+.goal-note-image[data-missing]::after {
+  content: "deploying…";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-ink-400);
+}
+
+.goal-note-image-open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: zoom-in;
+}
+
+.goal-note-image-open img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.goal-note-image-remove {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-ink-900);
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-white);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.goal-card.is-active .goal-note-image:hover .goal-note-image-remove,
+.goal-note-image-remove:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .goal-card.is-active .goal-note-image-remove {
+    opacity: 1;
+  }
+}
+
+.goal-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: rgba(0, 0, 0, 0.82);
+  padding: 4vh 4vw;
+  cursor: zoom-out;
+  animation: goal-lightbox-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.goal-lightbox img {
+  max-width: 92vw;
+  max-height: 90vh;
+  border: var(--line-strong) solid var(--color-white);
+  background: var(--color-white);
+}
+
+@keyframes goal-lightbox-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .goal-lightbox {
+    animation: none;
+  }
+}
+
+.goal-notes-text {
+  flex: 1;
+  width: 100%;
+  min-height: 120px;
+  border: 0;
+  background: transparent;
   padding: 16px;
   resize: none;
   outline: none;
