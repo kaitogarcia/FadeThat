@@ -70,6 +70,7 @@ export function normalizeMatrix(raw) {
 const MAX_LEGEND = 20;
 const MAX_DAYS = 5000;
 const MAX_COUNTERS = 20;
+const MAX_RANGES = 50;
 const MAX_COUNT = 1_000_000;
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -110,7 +111,29 @@ export function normalizeCalendar(raw) {
       };
     });
 
-  return { legend, days, counters };
+  // Highlighted date ranges, drawn as strips under the days (separate from day colors).
+  const rangeIds = new Set();
+  const ranges = (Array.isArray(raw?.ranges) ? raw.ranges : [])
+    .filter(
+      (item) =>
+        item &&
+        typeof item.id === "string" &&
+        item.id &&
+        DATE_PATTERN.test(item.start) &&
+        DATE_PATTERN.test(item.end) &&
+        !rangeIds.has(item.id) &&
+        rangeIds.add(item.id)
+    )
+    .slice(0, MAX_RANGES)
+    .map((item) => ({
+      id: item.id.slice(0, 120),
+      start: item.start <= item.end ? item.start : item.end,
+      end: item.start <= item.end ? item.end : item.start,
+      color: COLOR_PATTERN.test(item.color) ? item.color.toLowerCase() : "#7c9cff",
+      label: typeof item.label === "string" ? item.label.slice(0, 60) : "",
+    }));
+
+  return { legend, days, counters, ranges };
 }
 
 export function normalizeMatrices(list) {
