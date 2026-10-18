@@ -1,5 +1,6 @@
 export const MAX_MATRICES = 100;
 export const MAX_TEXT = 400;
+export const MAX_NOTES = 4000;
 
 export function makeId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -16,6 +17,7 @@ export function emptyMatrix() {
   return {
     id: makeId(),
     goal: "",
+    notes: "",
     subs: Array.from({ length: 8 }, () => ({ goal: "", actions: Array(8).fill("") })),
   };
 }
@@ -35,6 +37,7 @@ export function normalizeMatrix(raw) {
   return {
     id: typeof raw.id === "string" && raw.id ? raw.id.slice(0, 120) : makeId(),
     goal: text(raw.goal),
+    notes: typeof raw.notes === "string" ? raw.notes.slice(0, MAX_NOTES) : "",
     subs,
   };
 }
