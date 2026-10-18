@@ -35,6 +35,11 @@ const sections = [
       ["shottr", "screenshots, markup, scrolling capture, ocr, pinned shots"],
       ["copyclip", "clipboard history. pairs with hammerspoon auto-copy."],
       ["ollama", "runs ai models on the laptop. gemma4 for chat, nomic-embed-text for search embeddings."],
+      [
+        "trackpad speed",
+        "defaults write -g com.apple.trackpad.scaling -float 5.0\n" +
+          "faster than the system settings max (3.0). log out and back in to apply.",
+      ],
     ],
   },
   {
