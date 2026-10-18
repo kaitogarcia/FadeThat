@@ -106,6 +106,7 @@ export function normalizeCalendar(raw) {
         id: item.id.slice(0, 120),
         label: typeof item.label === "string" ? item.label.slice(0, 60) : "",
         value: Number.isFinite(value) ? Math.max(-MAX_COUNT, Math.min(MAX_COUNT, value)) : 0,
+        target: typeof item.target === "string" ? item.target.slice(0, 20) : "",
       };
     });
 

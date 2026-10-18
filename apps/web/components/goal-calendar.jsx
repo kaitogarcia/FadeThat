@@ -58,9 +58,13 @@ function Counters({ counters, onChange }) {
   };
 
   const add = () => {
-    onChange((cal) => ({ ...cal, counters: [...cal.counters, { id: makeId(), label: "", value: 0 }] }));
+    onChange((cal) => ({
+      ...cal,
+      counters: [...cal.counters, { id: makeId(), label: "", value: 0, target: "" }],
+    }));
   };
 
+  // Reads like a line of text: `label   − x + / y`; inputs size to their content.
   return (
     <div className="goal-counters">
       {counters.map((item) => (
@@ -71,9 +75,10 @@ function Counters({ counters, onChange }) {
             value={item.label}
             placeholder="counter"
             maxLength={60}
+            size={Math.max(7, item.label.length)}
             onChange={(event) => update(item.id, { label: event.target.value })}
           />
-          <div className="goal-counter-controls">
+          <span className="goal-counter-controls">
             <button type="button" onClick={() => step(item.id, -1)} aria-label={`Decrease ${item.label || "counter"}`}>
               −
             </button>
@@ -83,7 +88,20 @@ function Counters({ counters, onChange }) {
             <button type="button" onClick={() => step(item.id, 1)} aria-label={`Increase ${item.label || "counter"}`}>
               +
             </button>
-          </div>
+          </span>
+          <span className="goal-counter-slash" aria-hidden="true">
+            /
+          </span>
+          <input
+            type="text"
+            className="goal-counter-target"
+            value={item.target}
+            placeholder="y"
+            maxLength={20}
+            size={Math.max(1, item.target.length)}
+            aria-label={`Target for ${item.label || "counter"}`}
+            onChange={(event) => update(item.id, { target: event.target.value })}
+          />
           <button
             type="button"
             className="goal-counter-remove"
@@ -221,11 +239,14 @@ export default function GoalCalendar({ calendar, onChange }) {
                 const item = legendById.get(calendar.days[key]);
                 const isFirst = date.getDate() === 1;
                 const isToday = key === todayKey;
+                const isPast = todayKey !== null && key < todayKey;
                 return (
                   <button
                     type="button"
                     key={key}
-                    className={`goal-cal-day${isToday ? " is-today" : ""}${isFirst ? " is-first" : ""}`}
+                    className={`goal-cal-day${isToday ? " is-today" : ""}${isFirst ? " is-first" : ""}${
+                      isPast ? " is-past" : ""
+                    }`}
                     style={item ? { backgroundColor: item.color } : undefined}
                     aria-label={`${key}${item ? `: ${item.label || "colored"}` : ""}`}
                     title={item?.label || undefined}
