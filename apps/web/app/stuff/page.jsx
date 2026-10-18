@@ -68,6 +68,20 @@ export default function StuffPage() {
               open
             </Link>
           </article>
+
+          <article className="card">
+            <div>
+              <span className="chip chip-live">live</span>
+              <h2>goal matrices</h2>
+              <p>
+                9x9 goal charts: one main goal, eight sub-goals, eight actions each. zoom from all
+                goals into a single block and edit as you go.
+              </p>
+            </div>
+            <Link className="cta" href="/goals">
+              open
+            </Link>
+          </article>
         </section>
       </PageShell>
     </div>
