@@ -2075,6 +2075,10 @@ a {
   text-align: center;
   color: var(--color-ink-800);
   cursor: text;
+  /* Text shrinks to fit (see fitCellText) instead of splitting words. */
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
 }
 
 .goal-cell::placeholder {
@@ -2088,6 +2092,11 @@ a {
 
 .goal-cell-sub {
   font-weight: 700;
+}
+
+/* Placeholders don't auto-fit; keep "sub-goal N" on one line. */
+.goal-cell-sub::placeholder {
+  font-size: 10px;
 }
 
 .goal-cell-main {
