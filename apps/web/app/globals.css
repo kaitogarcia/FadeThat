@@ -1464,21 +1464,25 @@ a {
 }
 
 /* Counters: plain lines of text — `label   − x + / y` */
-/* Stacked vertically, one counter per line. */
+/* Stacked vertically, one counter per line. Rows share columns (name | − x + | / | y | ×)
+   so the numbers line up, with the name column only as wide as the longest name. */
 .goal-counters {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: max-content max-content max-content max-content max-content;
+  justify-content: start;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 8px;
   padding: 16px 0;
   border-top: 1px solid var(--g-line);
   border-bottom: 1px solid var(--g-line);
 }
 
 .goal-counter {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
   font-size: 0.95rem;
   line-height: 1.4;
 }
@@ -1595,6 +1599,8 @@ a {
 }
 
 .goal-counter-add {
+  grid-column: 1 / -1;
+  justify-self: start;
   border: 0;
   background: none;
   padding: 0;
@@ -1691,20 +1697,32 @@ a {
 }
 
 /* Highlighted ranges: stacked strips along the bottom of each covered day. */
+/* Highlighted ranges: one strip per lane, joined across the 4px day gap into a continuous band. */
 .goal-cal-strips {
   position: absolute;
-  left: 3px;
-  right: 3px;
-  bottom: 3px;
-  display: grid;
-  gap: 1px;
+  inset: 0;
   pointer-events: none;
 }
 
 .goal-cal-strips i {
-  display: block;
-  height: 3px;
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  height: 4px;
   border-radius: 2px;
+}
+
+/* Half of the grid gap on each side, so neighbouring strips meet in the middle. */
+.goal-cal-strips i.join-l {
+  left: -2px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.goal-cal-strips i.join-r {
+  right: -2px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .goal-cal-day.is-range-preview {
