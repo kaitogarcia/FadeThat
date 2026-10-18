@@ -1,0 +1,76 @@
+export const MAX_MATRICES = 100;
+export const MAX_TEXT = 400;
+
+export function makeId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function text(value) {
+  return typeof value === "string" ? value.slice(0, MAX_TEXT) : "";
+}
+
+export function emptyMatrix() {
+  return {
+    id: makeId(),
+    goal: "",
+    subs: Array.from({ length: 8 }, () => ({ goal: "", actions: Array(8).fill("") })),
+  };
+}
+
+export function normalizeMatrix(raw) {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+  const subs = Array.from({ length: 8 }, (_, k) => {
+    const sub = Array.isArray(raw.subs) ? raw.subs[k] : null;
+    const actions = Array.isArray(sub?.actions) ? sub.actions : [];
+    return {
+      goal: text(sub?.goal),
+      actions: Array.from({ length: 8 }, (_, a) => text(actions[a])),
+    };
+  });
+  return {
+    id: typeof raw.id === "string" && raw.id ? raw.id.slice(0, 120) : makeId(),
+    goal: text(raw.goal),
+    subs,
+  };
+}
+
+const MAX_LEGEND = 20;
+const MAX_DAYS = 5000;
+const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+export function normalizeCalendar(raw) {
+  const seen = new Set();
+  const legend = (Array.isArray(raw?.legend) ? raw.legend : [])
+    .filter((item) => item && typeof item.id === "string" && item.id && !seen.has(item.id) && seen.add(item.id))
+    .slice(0, MAX_LEGEND)
+    .map((item) => ({
+      id: item.id.slice(0, 120),
+      color: COLOR_PATTERN.test(item.color) ? item.color.toLowerCase() : "#d9d9d9",
+      label: typeof item.label === "string" ? item.label.slice(0, 60) : "",
+    }));
+
+  const ids = new Set(legend.map((item) => item.id));
+  const days = {};
+  const entries = raw?.days && typeof raw.days === "object" ? Object.entries(raw.days) : [];
+  for (const [date, id] of entries.slice(0, MAX_DAYS)) {
+    if (DATE_PATTERN.test(date) && ids.has(id)) {
+      days[date] = id;
+    }
+  }
+
+  return { legend, days };
+}
+
+export function normalizeMatrices(list) {
+  const seen = new Set();
+  return (Array.isArray(list) ? list : [])
+    .map(normalizeMatrix)
+    .filter((m) => m && !seen.has(m.id) && seen.add(m.id))
+    .slice(0, MAX_MATRICES);
+}

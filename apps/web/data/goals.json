@@ -1,0 +1,12 @@
+{
+  "savedAt": 0,
+  "matrices": [],
+  "calendar": {
+    "legend": [
+      { "id": "hit", "color": "#c4f0d2", "label": "hit goal" },
+      { "id": "miss", "color": "#ffc1d5", "label": "missed" },
+      { "id": "rest", "color": "#fff3a8", "label": "rest day" }
+    ],
+    "days": {}
+  }
+}

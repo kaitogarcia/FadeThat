@@ -1367,7 +1367,208 @@ a {
 
 .goal-wrap {
   margin-top: var(--space-10);
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: start;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.goal-main {
+  min-width: 0;
+}
+
+.goal-cal {
+  border: var(--line-strong) solid var(--color-ink-900);
+  background: var(--color-white);
+  box-shadow: var(--shadow-hard-sm);
+  padding: var(--space-6);
+  user-select: none;
+}
+
+.goal-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.goal-cal-head button {
+  min-width: 32px;
+  min-height: 32px;
+  border: var(--line-strong) solid var(--color-ink-900);
+  background: var(--color-white);
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.goal-cal-head .goal-cal-month {
+  flex: 1;
+  border-color: transparent;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.goal-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.goal-cal-weekday {
+  padding-bottom: var(--space-1);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ink-400);
+}
+
+.goal-cal-day {
+  aspect-ratio: 1;
+  min-width: 0;
+  border: var(--line-strong) solid rgba(0, 0, 0, 0.15);
+  background: var(--color-white);
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--color-ink-800);
+  cursor: crosshair;
+  touch-action: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.goal-cal-day:hover {
+  border-color: var(--color-ink-900);
+}
+
+.goal-cal-day.is-today {
+  border: 2px solid var(--color-ink-900);
+  font-weight: 700;
+}
+
+.goal-legend {
+  margin-top: var(--space-6);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.goal-legend-title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ink-450);
+}
+
+.goal-legend-row {
+  display: grid;
+  grid-template-columns: 28px 28px minmax(0, 1fr) auto 24px;
+  align-items: center;
+  gap: var(--space-2);
+  border: var(--line-strong) solid transparent;
+  padding: 2px;
+}
+
+.goal-legend-row.is-active {
+  border-color: var(--color-ink-900);
+}
+
+.goal-legend-pick,
+.goal-legend-remove {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.goal-legend-pick span {
+  width: 20px;
+  height: 20px;
+  border: var(--line-strong) solid var(--color-ink-900);
+  border-radius: 50%;
+}
+
+.goal-legend-row.is-active .goal-legend-pick span {
+  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 3px var(--color-ink-900);
+}
+
+.goal-legend-color {
+  width: 28px;
+  height: 28px;
+  border: var(--line-strong) solid rgba(0, 0, 0, 0.2);
+  background: none;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.goal-legend-label {
+  min-width: 0;
+  border: 0;
+  border-bottom: var(--line-strong) solid rgba(0, 0, 0, 0.2);
+  background: none;
+  padding: 4px 2px;
+  font: inherit;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.goal-legend-label:focus {
+  border-bottom-color: var(--color-ink-900);
+}
+
+.goal-legend-count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ink-400);
+}
+
+.goal-legend-remove {
+  width: 24px;
+  font-size: 1.1rem;
+  color: var(--color-ink-400);
+}
+
+.goal-legend-remove:hover {
+  color: var(--color-ink-900);
+}
+
+.goal-legend-tools {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.goal-legend-tools button {
+  flex: 1;
+  min-height: 34px;
+  border: var(--line-strong) solid var(--color-ink-900);
+  background: var(--color-white);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.goal-legend-tools button.is-active {
+  background: var(--color-ink-900);
+  color: var(--color-white);
+}
+
+.goal-legend-tools button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .goal-wrap {
+    grid-template-columns: 1fr;
+  }
 }
 
 .goal-hud {
@@ -1455,6 +1656,15 @@ a {
 
 .goal-actions .goal-danger {
   background: #ffb3b3;
+}
+
+.goal-actions .goal-save.is-dirty {
+  background: var(--color-ink-900);
+  color: var(--color-white);
+}
+
+.goal-save-error {
+  color: #b00020;
 }
 
 .goal-stage {
