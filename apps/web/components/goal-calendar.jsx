@@ -3,28 +3,58 @@
 import { useEffect, useRef, useState } from "react";
 import { makeId } from "@/lib/goal-matrix";
 
+// One continuous run of weeks; change these to move the window.
+const RANGE_START = new Date(2026, 9, 1); // Oct 1, 2026
+const RANGE_END = new Date(2027, 0, 31); // Jan 31, 2027
+
 const WEEKDAYS = ["s", "m", "t", "w", "t", "f", "s"];
 const NEW_COLORS = ["#b9d6ff", "#ffd6a5", "#d6c2ff", "#ffe0f0", "#d2ecff", "#c4f0d2", "#ffc1d5", "#fff3a8"];
 const ERASER = "eraser";
 
-function dateKey(year, month, day) {
-  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+function dateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-function todayKey() {
-  const now = new Date();
-  return dateKey(now.getFullYear(), now.getMonth(), now.getDate());
+// Sunday-start weeks covering the range; days outside it are null.
+function buildWeeks() {
+  const cursor = new Date(RANGE_START);
+  cursor.setDate(cursor.getDate() - cursor.getDay());
+  const weeks = [];
+  while (cursor <= RANGE_END) {
+    const week = [];
+    for (let i = 0; i < 7; i += 1) {
+      week.push(cursor >= RANGE_START && cursor <= RANGE_END ? new Date(cursor) : null);
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    weeks.push(week);
+  }
+  return weeks;
 }
+
+const WEEKS = buildWeeks();
+const RANGE_PREFIXES = { start: dateKey(RANGE_START), end: dateKey(RANGE_END) };
 
 export default function GoalCalendar({ calendar, onChange }) {
-  const [month, setMonth] = useState(() => {
-    const now = new Date();
-    return { year: now.getFullYear(), month: now.getMonth() };
-  });
   const [brush, setBrush] = useState(() => calendar.legend[0]?.id || ERASER);
   // While the pointer is down, dragging across days keeps painting the same way.
   const paintRef = useRef(null);
-  const today = todayKey();
+  const scrollRef = useRef(null);
+  const todayRef = useRef(null);
+  const [today, setToday] = useState(null);
+
+  // Today is only known in the browser; computing it there avoids a hydration mismatch.
+  useEffect(() => {
+    setToday(dateKey(new Date()));
+  }, []);
+
+  // Start scrolled to the current week.
+  useEffect(() => {
+    const box = scrollRef.current;
+    const cell = todayRef.current;
+    if (box && cell) {
+      box.scrollTop = Math.max(0, cell.offsetTop - box.clientHeight / 3);
+    }
+  }, [today]);
 
   useEffect(() => {
     const stop = () => {
@@ -90,24 +120,17 @@ export default function GoalCalendar({ calendar, onChange }) {
     setBrush(item.id);
   };
 
-  const shiftMonth = (delta) => {
-    setMonth(({ year, month: m }) => {
-      const next = new Date(year, m + delta, 1);
-      return { year: next.getFullYear(), month: next.getMonth() };
-    });
+  const jumpToToday = () => {
+    const box = scrollRef.current;
+    const cell = todayRef.current;
+    if (box && cell) {
+      box.scrollTo({ top: Math.max(0, cell.offsetTop - box.clientHeight / 3), behavior: "smooth" });
+    }
   };
 
-  const firstWeekday = new Date(month.year, month.month, 1).getDay();
-  const daysInMonth = new Date(month.year, month.month + 1, 0).getDate();
-  const monthLabel = new Date(month.year, month.month, 1).toLocaleString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-
   const counts = {};
-  const prefix = dateKey(month.year, month.month, 1).slice(0, 8);
   for (const [key, id] of Object.entries(calendar.days)) {
-    if (key.startsWith(prefix)) {
+    if (key >= RANGE_PREFIXES.start && key <= RANGE_PREFIXES.end) {
       counts[id] = (counts[id] || 0) + 1;
     }
   }
@@ -115,63 +138,57 @@ export default function GoalCalendar({ calendar, onChange }) {
   return (
     <aside className="goal-cal" aria-label="Calendar">
       <div className="goal-cal-head">
-        <button type="button" onClick={() => shiftMonth(-1)} aria-label="Previous month">
-          ‹
-        </button>
-        <button
-          type="button"
-          className="goal-cal-month"
-          onClick={() => {
-            const now = new Date();
-            setMonth({ year: now.getFullYear(), month: now.getMonth() });
-          }}
-          title="Back to this month"
-        >
-          {monthLabel.toLowerCase()}
-        </button>
-        <button type="button" onClick={() => shiftMonth(1)} aria-label="Next month">
-          ›
+        <p className="goal-cal-range">oct – jan</p>
+        <button type="button" onClick={jumpToToday} disabled={!today}>
+          today
         </button>
       </div>
 
-      <div className="goal-cal-grid" role="grid" aria-label={monthLabel}>
+      <div className="goal-cal-weekdays" aria-hidden="true">
         {WEEKDAYS.map((day, index) => (
-          <span className="goal-cal-weekday" key={`${day}-${index}`} aria-hidden="true">
-            {day}
-          </span>
+          <span key={`${day}-${index}`}>{day}</span>
         ))}
-        {Array.from({ length: firstWeekday }, (_, index) => (
-          <span key={`pad-${index}`} aria-hidden="true" />
-        ))}
-        {Array.from({ length: daysInMonth }, (_, index) => {
-          const day = index + 1;
-          const key = dateKey(month.year, month.month, day);
-          const item = legendById.get(calendar.days[key]);
-          return (
-            <button
-              type="button"
-              key={key}
-              className={`goal-cal-day${key === today ? " is-today" : ""}`}
-              style={item ? { backgroundColor: item.color } : undefined}
-              aria-label={`${key}${item ? `: ${item.label || "colored"}` : ""}`}
-              title={item?.label || undefined}
-              onPointerDown={(event) => {
-                event.preventDefault();
-                startPaint(key);
-              }}
-              onPointerEnter={() => continuePaint(key)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
+      </div>
+
+      <div className="goal-cal-scroll" ref={scrollRef}>
+        <div className="goal-cal-grid" role="grid" aria-label="October to January">
+          {WEEKS.flat().map((date, index) => {
+            if (!date) {
+              return <span className="goal-cal-blank" key={`blank-${index}`} aria-hidden="true" />;
+            }
+            const key = dateKey(date);
+            const item = legendById.get(calendar.days[key]);
+            const isFirst = date.getDate() === 1;
+            const monthLabel = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
+            const isToday = key === today;
+            return (
+              <button
+                type="button"
+                key={key}
+                ref={isToday ? todayRef : undefined}
+                className={`goal-cal-day${isToday ? " is-today" : ""}${isFirst ? " is-first" : ""}`}
+                style={item ? { backgroundColor: item.color } : undefined}
+                aria-label={`${key}${item ? `: ${item.label || "colored"}` : ""}`}
+                title={item?.label || undefined}
+                onPointerDown={(event) => {
                   event.preventDefault();
                   startPaint(key);
-                  paintRef.current = null;
-                }
-              }}
-            >
-              {day}
-            </button>
-          );
-        })}
+                }}
+                onPointerEnter={() => continuePaint(key)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    startPaint(key);
+                    paintRef.current = null;
+                  }
+                }}
+              >
+                {isFirst ? <span className="goal-cal-month-label">{monthLabel}</span> : null}
+                {date.getDate()}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="goal-legend">
@@ -203,7 +220,7 @@ export default function GoalCalendar({ calendar, onChange }) {
               onFocus={() => setBrush(item.id)}
               onChange={(event) => updateLegend(item.id, { label: event.target.value })}
             />
-            <span className="goal-legend-count" title="days this month">
+            <span className="goal-legend-count" title="days oct – jan">
               {counts[item.id] || 0}
             </span>
             <button

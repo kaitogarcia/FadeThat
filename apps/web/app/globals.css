@@ -1368,7 +1368,7 @@ a {
 .goal-wrap {
   margin-top: var(--space-10);
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 460px minmax(0, 1fr);
   gap: var(--space-8);
   align-items: start;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -1379,6 +1379,10 @@ a {
 }
 
 .goal-cal {
+  display: flex;
+  flex-direction: column;
+  height: calc(100svh - 150px);
+  min-height: 560px;
   border: var(--line-strong) solid var(--color-ink-900);
   background: var(--color-white);
   box-shadow: var(--shadow-hard-sm);
@@ -1394,47 +1398,66 @@ a {
   margin-bottom: var(--space-4);
 }
 
-.goal-cal-head button {
-  min-width: 32px;
-  min-height: 32px;
-  border: var(--line-strong) solid var(--color-ink-900);
-  background: var(--color-white);
-  font: inherit;
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.goal-cal-head .goal-cal-month {
-  flex: 1;
-  border-color: transparent;
-  font-size: 1.05rem;
+.goal-cal-range {
+  margin: 0;
+  font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
 
+.goal-cal-head button {
+  min-height: 32px;
+  border: var(--line-strong) solid var(--color-ink-900);
+  background: var(--color-white);
+  padding: 0 var(--space-5);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.goal-cal-head button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.goal-cal-weekdays,
 .goal-cal-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 3px;
+  gap: 4px;
 }
 
-.goal-cal-weekday {
-  padding-bottom: var(--space-1);
+.goal-cal-weekdays {
+  padding: 0 var(--space-2) var(--space-2) 0;
+  border-bottom: var(--line-strong) solid var(--color-ink-900);
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--color-ink-400);
 }
 
+.goal-cal-scroll {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-2) var(--space-3) 0;
+  scrollbar-gutter: stable;
+}
+
+.goal-cal-blank {
+  aspect-ratio: 1;
+}
+
 .goal-cal-day {
+  position: relative;
   aspect-ratio: 1;
   min-width: 0;
   border: var(--line-strong) solid rgba(0, 0, 0, 0.15);
   background: var(--color-white);
   padding: 0;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 1.05rem;
   color: var(--color-ink-800);
   cursor: crosshair;
   touch-action: none;
@@ -1445,13 +1468,30 @@ a {
   border-color: var(--color-ink-900);
 }
 
+.goal-cal-day.is-first {
+  font-weight: 700;
+}
+
+.goal-cal-month-label {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-450);
+}
+
 .goal-cal-day.is-today {
   border: 2px solid var(--color-ink-900);
   font-weight: 700;
 }
 
 .goal-legend {
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: var(--line-strong) solid var(--color-ink-900);
   display: grid;
   gap: var(--space-2);
 }
@@ -1565,9 +1605,13 @@ a {
   cursor: default;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .goal-wrap {
     grid-template-columns: 1fr;
+  }
+
+  .goal-cal {
+    height: 70svh;
   }
 }
 
