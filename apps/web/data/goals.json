@@ -1,5 +1,5 @@
 {
-  "savedAt": 1792363297538,
+  "savedAt": 1792365905161,
   "matrices": [
     {
       "id": "75cd9dc0-bf46-43d4-8c9b-48899364215e",
@@ -19,8 +19,8 @@
         {
           "goal": "43 inch vert",
           "actions": [
-            "",
-            "",
+            "330 squat",
+            "215 power clean",
             "",
             "",
             "",
@@ -58,7 +58,7 @@
         {
           "goal": "healthy achillies + shins",
           "actions": [
-            "",
+            "dont jump with injury",
             "",
             "",
             "",
@@ -240,7 +240,7 @@
       {
         "id": "hit",
         "color": "#c4f0d2",
-        "label": "hit goal"
+        "label": "arms"
       },
       {
         "id": "miss",
@@ -254,22 +254,56 @@
       }
     ],
     "days": {
-      "2026-10-18": "hit"
+      "2026-10-17": "hit"
     },
     "counters": [
       {
         "id": "9cc8e1d5-64dd-4acb-9a09-821bc495eff1",
         "label": "arm day",
-        "value": 0,
-        "target": ""
+        "value": 1,
+        "target": "35"
       },
       {
         "id": "55abd7de-1752-4910-9a77-f86e4533211e",
         "label": "neck day",
+        "value": 1,
+        "target": "45"
+      },
+      {
+        "id": "6eb50e3a-dfe9-4bff-a1ca-2f6d48eb6312",
+        "label": "leg day",
+        "value": 0,
+        "target": "25"
+      },
+      {
+        "id": "d6181737-b313-4766-b52b-c6efce60ff6a",
+        "label": "",
         "value": 0,
         "target": ""
       }
     ],
-    "ranges": []
+    "ranges": [
+      {
+        "id": "e0b515d7-cd07-4956-9a08-60be9ce089f9",
+        "start": "2026-11-19",
+        "end": "2026-11-24",
+        "color": "#5b7cfa",
+        "label": "colima"
+      },
+      {
+        "id": "72255f20-f2a4-4fb3-90a8-ba01065dd6d9",
+        "start": "2026-11-03",
+        "end": "2026-11-09",
+        "color": "#ff9f1c",
+        "label": "singapore"
+      },
+      {
+        "id": "14a12380-5930-4cb3-ba79-d6275d102925",
+        "start": "2026-10-29",
+        "end": "2026-11-02",
+        "color": "#2ec4b6",
+        "label": "ny"
+      }
+    ]
   }
 }
