@@ -113,7 +113,7 @@ const CELL_FONT = { main: 17, sub: 14, action: 14 };
 const MIN_CELL_FONT = 4.5;
 
 function overflows(el) {
-  return el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
+  return el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth;
 }
 
 // Largest font size (0.5px steps) at which the text fits without splitting words.
