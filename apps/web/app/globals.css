@@ -2091,6 +2091,7 @@ a {
 
 /* Notes */
 .goal-notes {
+  position: relative;
   width: 300px;
   flex: none;
   display: flex;
@@ -2099,6 +2100,50 @@ a {
   overflow: hidden;
   border-radius: 16px;
   background: #fbf8ef;
+}
+
+/* Collapsed: a slim rail with just the toggle (and a dot if there are notes). */
+.goal-notes.is-collapsed {
+  width: 40px;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.goal-notes-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0 0 2px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--g-muted);
+  cursor: pointer;
+  transition: background-color 160ms var(--g-ease), color 160ms var(--g-ease);
+}
+
+.goal-notes-toggle:hover {
+  background: var(--g-accent);
+  color: var(--g-surface);
+}
+
+.goal-notes.is-collapsed .goal-notes-toggle {
+  position: static;
+}
+
+.goal-notes-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--g-muted);
 }
 
 .goal-world.is-overview .goal-notes {
@@ -2111,7 +2156,7 @@ a {
   min-height: 120px;
   border: 0;
   background: transparent;
-  padding: 18px;
+  padding: 18px 42px 18px 18px;
   resize: none;
   outline: none;
   font-family: var(--g-font);
