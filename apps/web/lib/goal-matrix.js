@@ -44,6 +44,8 @@ export function normalizeMatrix(raw) {
 
 const MAX_LEGEND = 20;
 const MAX_DAYS = 5000;
+const MAX_COUNTERS = 20;
+const MAX_COUNT = 1_000_000;
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -67,7 +69,22 @@ export function normalizeCalendar(raw) {
     }
   }
 
-  return { legend, days };
+  const counterIds = new Set();
+  const counters = (Array.isArray(raw?.counters) ? raw.counters : [])
+    .filter(
+      (item) => item && typeof item.id === "string" && item.id && !counterIds.has(item.id) && counterIds.add(item.id)
+    )
+    .slice(0, MAX_COUNTERS)
+    .map((item) => {
+      const value = Math.round(Number(item.value));
+      return {
+        id: item.id.slice(0, 120),
+        label: typeof item.label === "string" ? item.label.slice(0, 60) : "",
+        value: Number.isFinite(value) ? Math.max(-MAX_COUNT, Math.min(MAX_COUNT, value)) : 0,
+      };
+    });
+
+  return { legend, days, counters };
 }
 
 export function normalizeMatrices(list) {
