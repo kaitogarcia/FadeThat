@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from .board_store import build_board_store
+from .goals import router as goals_router
 from .instagram_manager import (
     GraphApiError,
     build_job_manager,
@@ -58,6 +59,7 @@ class BoardNotesRequest(BaseModel):
 
 
 app = FastAPI(title="my-app api")
+app.include_router(goals_router)
 job_manager = build_job_manager()
 board_store = build_board_store()
 SPECIAL_LOGIN_TOKENS = {"hey", "baby"}
