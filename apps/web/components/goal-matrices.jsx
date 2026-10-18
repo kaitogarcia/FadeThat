@@ -107,9 +107,55 @@ function worldRect(world, el) {
   };
 }
 
+// Starting font size per cell kind (matches the CSS) and the smallest it may shrink to.
+const CELL_FONT = { main: 17, sub: 14, action: 14 };
+// Cells are small in world units; zoomed into a block, 4.5px still reads at ~10px on screen.
+const MIN_CELL_FONT = 4.5;
+
+function overflows(el) {
+  return el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
+}
+
+// Largest font size (0.5px steps) at which the text fits without splitting words.
+function fitCellText(el, base) {
+  el.style.overflowWrap = "normal";
+  el.style.padding = "";
+  el.style.fontSize = `${base}px`;
+  if (!el.value || !overflows(el)) {
+    return;
+  }
+  // Tighter padding buys room for long words before shrinking.
+  el.style.padding = "3px";
+  if (!overflows(el)) {
+    return;
+  }
+  let lo = MIN_CELL_FONT;
+  let hi = base;
+  while (hi - lo > 0.5) {
+    const mid = Math.round(((lo + hi) / 2) * 2) / 2;
+    el.style.fontSize = `${mid}px`;
+    if (overflows(el)) hi = mid;
+    else lo = mid;
+  }
+  el.style.fontSize = `${lo}px`;
+  // A single word too long even at the smallest size: let it break as a last resort.
+  if (overflows(el)) {
+    el.style.overflowWrap = "anywhere";
+  }
+}
+
 function Cell({ value, onChange, placeholder, kind, color, interactive, onFocus }) {
+  const ref = useRef(null);
+
+  useLayoutEffect(() => {
+    if (ref.current) {
+      fitCellText(ref.current, CELL_FONT[kind]);
+    }
+  }, [value, kind]);
+
   return (
     <textarea
+      ref={ref}
       className={`goal-cell goal-cell-${kind}`}
       style={color ? { backgroundColor: color } : undefined}
       value={value}
