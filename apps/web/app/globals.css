@@ -1684,13 +1684,13 @@ a {
   top: 0;
   left: 0;
   display: grid;
-  grid-template-columns: repeat(var(--goal-cols), 720px);
+  grid-template-columns: repeat(var(--goal-cols), max-content);
   gap: 80px;
   transform-origin: 0 0;
 }
 
 .goal-card {
-  width: 720px;
+  min-width: 720px;
   border: var(--line-strong) solid var(--color-ink-900);
   background: var(--color-white);
   box-shadow: var(--shadow-hard-md);
@@ -1701,8 +1701,42 @@ a {
   cursor: zoom-in;
 }
 
-.goal-world.is-overview .goal-cell {
+.goal-world.is-overview .goal-cell,
+.goal-world.is-overview .goal-notes-text {
   pointer-events: none;
+}
+
+.goal-card-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.goal-card-row .goal-chart {
+  width: 690px;
+  flex: none;
+}
+
+.goal-notes-text {
+  width: 300px;
+  flex: none;
+  border: var(--line-strong) solid var(--color-ink-900);
+  background: #fffbea;
+  padding: 16px;
+  resize: none;
+  outline: none;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-ink-800);
+}
+
+.goal-notes-text::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.goal-notes-text:focus {
+  box-shadow: inset 0 0 0 1px var(--color-ink-900);
 }
 
 .goal-card-title {

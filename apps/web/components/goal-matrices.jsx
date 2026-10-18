@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { emptyMatrix, normalizeCalendar, normalizeMatrices } from "@/lib/goal-matrix";
+import { MAX_NOTES, emptyMatrix, normalizeCalendar, normalizeMatrices } from "@/lib/goal-matrix";
 import GoalCalendar from "@/components/goal-calendar";
 
 // Unsaved edits are kept in the browser until Save commits them to the repo.
@@ -389,6 +389,11 @@ export default function GoalMatrices({ initialData }) {
     }
 
     const onWheel = (event) => {
+      // Let long notes scroll instead of zooming.
+      const notes = event.target.closest?.(".goal-notes-text");
+      if (notes && notes.scrollHeight > notes.clientHeight && !event.ctrlKey) {
+        return;
+      }
       event.preventDefault();
       const state = wheelRef.current;
       const now = Date.now();
@@ -518,6 +523,25 @@ export default function GoalMatrices({ initialData }) {
                   }
                 }}
               >
+                <div className="goal-card-row">
+                <textarea
+                  className="goal-notes-text"
+                  aria-label="Notes"
+                  value={matrix.notes}
+                  placeholder="notes: why this matters, ideas, progress..."
+                  maxLength={MAX_NOTES}
+                  tabIndex={interactive ? 0 : -1}
+                  spellCheck={false}
+                  onFocus={() => {
+                    if (viewRef.current.level === 2) {
+                      openMatrix(matrix.id);
+                    }
+                  }}
+                  onChange={(event) => {
+                    const notes = event.target.value;
+                    editMatrix(matrix.id, (m) => ({ ...m, notes }));
+                  }}
+                />
                 <MatrixChart
                   matrix={matrix}
                   interactive={interactive}
@@ -536,6 +560,7 @@ export default function GoalMatrices({ initialData }) {
                     else blockRefs.current.delete(key);
                   }}
                 />
+                </div>
                 <p className="goal-card-title">{matrix.goal || "untitled"}</p>
               </div>
             );
