@@ -43,6 +43,26 @@ function buildDays(start, end) {
 }
 
 const COLUMN_DAYS = COLUMNS.map((column) => buildDays(column.start, column.end));
+const COLUMN_KEYS = COLUMNS.map((column) => ({ start: dateKey(column.start), end: dateKey(column.end) }));
+
+// Give each range a fixed lane (interval coloring) so its strip stays at the same height
+// on every day it covers and reads as one continuous band.
+function assignLanes(ranges) {
+  const sorted = [...ranges].sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end));
+  const laneEnds = [];
+  const lanes = new Map();
+  for (const range of sorted) {
+    let lane = laneEnds.findIndex((end) => end < range.start);
+    if (lane === -1) {
+      lane = laneEnds.length;
+      laneEnds.push(range.end);
+    } else {
+      laneEnds[lane] = range.end;
+    }
+    lanes.set(range.id, lane);
+  }
+  return lanes;
+}
 const RANGE_KEYS = { start: dateKey(RANGE_START), end: dateKey(RANGE_END) };
 const END_LABEL = RANGE_END.toLocaleString("en-US", { month: "short", day: "numeric" }).toLowerCase();
 
@@ -275,6 +295,8 @@ export default function GoalCalendar({ calendar, onChange }) {
     setBrush(item.id);
   };
 
+  const lanes = assignLanes(calendar.ranges);
+
   const counts = {};
   for (const [key, id] of Object.entries(calendar.days)) {
     if (key >= RANGE_KEYS.start && key <= RANGE_KEYS.end) {
@@ -350,9 +372,23 @@ export default function GoalCalendar({ calendar, onChange }) {
                     ) : null}
                     {covering.length ? (
                       <span className="goal-cal-strips" aria-hidden="true">
-                        {covering.slice(0, MAX_STRIPS).map((range) => (
-                          <i key={range.id} style={{ backgroundColor: range.color }} />
-                        ))}
+                        {covering.map((range) => {
+                          const lane = lanes.get(range.id);
+                          if (lane >= MAX_STRIPS) {
+                            return null;
+                          }
+                          // Reach across the gap to neighbors in the same week row and column.
+                          const columnKeys = COLUMN_KEYS[columnIndex];
+                          const joinLeft = key > range.start && date.getDay() !== 0 && key !== columnKeys.start;
+                          const joinRight = key < range.end && date.getDay() !== 6 && key !== columnKeys.end;
+                          return (
+                            <i
+                              key={range.id}
+                              className={`${joinLeft ? "join-l" : ""} ${joinRight ? "join-r" : ""}`.trim() || undefined}
+                              style={{ backgroundColor: range.color, bottom: `${3 + lane * 6}px` }}
+                            />
+                          );
+                        })}
                       </span>
                     ) : null}
                   </button>
