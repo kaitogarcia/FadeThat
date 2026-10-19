@@ -1729,7 +1729,8 @@ a {
   left: 0;
   right: 0;
   border-radius: var(--g-radius-sm);
-  opacity: 0.42;
+  /* Pastel highlighter ink: near full strength, multiply so overlaps blend darker. */
+  opacity: 0.9;
   mix-blend-mode: multiply;
 }
 
@@ -1748,7 +1749,7 @@ a {
 
 /* Range being picked: same band, lighter. */
 .goal-cal-band.is-preview {
-  opacity: 0.3;
+  opacity: 0.55;
 }
 
 /* Day colors: one small dot per legend color, in legend order. */

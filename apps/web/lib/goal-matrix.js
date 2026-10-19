@@ -111,6 +111,45 @@ const MAX_COUNTERS = 20;
 const MAX_RANGES = 50;
 const MAX_COUNT = 1_000_000;
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
+
+// Deep legend colors: readable as small dots. New legend entries cycle through these.
+export const LEGEND_COLORS = ["#2f9e44", "#e03131", "#f08c00", "#1971c2", "#7048e8", "#0c8599", "#c2255c", "#e8590c"];
+
+// The old pastel palette was too faint for dots; saved legends using it are moved to the
+// matching deep color on load (and persist on the next Save). Hand-picked colors are kept.
+const PASTEL_TO_DEEP = {
+  "#c4f0d2": "#2f9e44",
+  "#ffc1d5": "#e03131",
+  "#fff3a8": "#f08c00",
+  "#b9d6ff": "#1971c2",
+  "#d6c2ff": "#7048e8",
+  "#d2ecff": "#0c8599",
+  "#ffe0f0": "#c2255c",
+  "#ffd6a5": "#e8590c",
+};
+
+function deepenLegendColor(color) {
+  return PASTEL_TO_DEEP[color] || color;
+}
+
+// Pastel highlighter colors for date ranges. New ranges cycle through these.
+export const RANGE_COLORS = ["#b9d6ff", "#ffd6a5", "#c4f0d2", "#ffc1d5", "#d6c2ff", "#fff3a8", "#d2ecff", "#ffe0f0"];
+
+// Ranges saved with the old saturated palette move to the matching pastel on load
+// (and persist on the next Save). Hand-picked colors are kept.
+const SATURATED_TO_PASTEL = {
+  "#5b7cfa": "#b9d6ff",
+  "#ff9f1c": "#ffd6a5",
+  "#2ec4b6": "#c4f0d2",
+  "#e84393": "#ffc1d5",
+  "#8e44ad": "#d6c2ff",
+  "#00a8e8": "#d2ecff",
+  "#7c9cff": "#b9d6ff",
+};
+
+function pastelRangeColor(color) {
+  return SATURATED_TO_PASTEL[color] || color;
+}
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export function normalizeCalendar(raw) {
@@ -120,7 +159,7 @@ export function normalizeCalendar(raw) {
     .slice(0, MAX_LEGEND)
     .map((item) => ({
       id: item.id.slice(0, 120),
-      color: COLOR_PATTERN.test(item.color) ? item.color.toLowerCase() : "#d9d9d9",
+      color: deepenLegendColor(COLOR_PATTERN.test(item.color) ? item.color.toLowerCase() : LEGEND_COLORS[0]),
       label: typeof item.label === "string" ? item.label.slice(0, 60) : "",
     }));
 
@@ -173,7 +212,7 @@ export function normalizeCalendar(raw) {
       id: item.id.slice(0, 120),
       start: item.start <= item.end ? item.start : item.end,
       end: item.start <= item.end ? item.end : item.start,
-      color: COLOR_PATTERN.test(item.color) ? item.color.toLowerCase() : "#7c9cff",
+      color: pastelRangeColor(COLOR_PATTERN.test(item.color) ? item.color.toLowerCase() : RANGE_COLORS[0]),
       label: typeof item.label === "string" ? item.label.slice(0, 60) : "",
     }));
 
