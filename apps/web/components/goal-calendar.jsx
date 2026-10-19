@@ -99,11 +99,80 @@ function Counters({ counters, onChange }) {
     }));
   };
 
+  const move = (id, to) => {
+    onChange((cal) => {
+      const from = cal.counters.findIndex((item) => item.id === id);
+      const target = Math.max(0, Math.min(cal.counters.length - 1, to));
+      if (from === -1 || from === target) {
+        return cal;
+      }
+      const counters = [...cal.counters];
+      const [moved] = counters.splice(from, 1);
+      counters.splice(target, 0, moved);
+      return { ...cal, counters };
+    });
+  };
+
+  // Dragging a counter's grip: it moves to wherever the pointer is over the list.
+  const listRef = useRef(null);
+  const [dragId, setDragId] = useState(null);
+  const dragTo = (id, clientY) => {
+    const rows = [...(listRef.current?.querySelectorAll(".goal-counter") || [])];
+    const from = rows.findIndex((row) => row.dataset.id === id);
+    let to = rows.findIndex((row) => {
+      const rect = row.getBoundingClientRect();
+      return clientY < rect.top + rect.height / 2;
+    });
+    if (to === -1) {
+      to = rows.length - 1;
+    } else if (from !== -1 && from < to) {
+      to -= 1;
+    }
+    if (from !== -1 && to !== from) {
+      move(id, to);
+    }
+  };
+
   // Reads like a line of text: `label   − x + / y`; inputs size to their content.
   return (
-    <div className="goal-counters">
-      {counters.map((item) => (
-        <div className="goal-counter" key={item.id}>
+    <div className="goal-counters" ref={listRef}>
+      {counters.map((item, index) => (
+        <div
+          className={`goal-counter${dragId === item.id ? " is-dragging" : ""}`}
+          key={item.id}
+          data-id={item.id}
+        >
+          <button
+            type="button"
+            className="goal-counter-grip"
+            aria-label="Drag to reorder (or Alt + arrow keys in the name)"
+            tabIndex={-1}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              try {
+                event.currentTarget.setPointerCapture(event.pointerId);
+              } catch {
+                // No active pointer to capture (e.g. synthetic events); moves still track.
+              }
+              setDragId(item.id);
+            }}
+            onPointerMove={(event) => {
+              if (dragId === item.id) {
+                dragTo(item.id, event.clientY);
+              }
+            }}
+            onPointerUp={() => setDragId(null)}
+            onPointerCancel={() => setDragId(null)}
+          >
+            <svg viewBox="0 0 8 12" aria-hidden="true">
+              <circle cx="2" cy="2" r="1" />
+              <circle cx="6" cy="2" r="1" />
+              <circle cx="2" cy="6" r="1" />
+              <circle cx="6" cy="6" r="1" />
+              <circle cx="2" cy="10" r="1" />
+              <circle cx="6" cy="10" r="1" />
+            </svg>
+          </button>
           <input
             type="text"
             className="goal-counter-label"
@@ -112,6 +181,15 @@ function Counters({ counters, onChange }) {
             maxLength={60}
             size={Math.max(7, item.label.length)}
             onChange={(event) => update(item.id, { label: event.target.value })}
+            onKeyDown={(event) => {
+              if (event.altKey && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
+                // Alt + ↑/↓ moves the counter; keep focus on it as it moves.
+                event.preventDefault();
+                const input = event.currentTarget;
+                move(item.id, index + (event.key === "ArrowUp" ? -1 : 1));
+                window.requestAnimationFrame(() => input.focus());
+              }
+            }}
           />
           <span className="goal-counter-controls">
             <button type="button" onClick={() => step(item.id, -1)} aria-label={`Decrease ${item.label || "counter"}`}>
