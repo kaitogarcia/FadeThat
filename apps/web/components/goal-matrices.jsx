@@ -13,6 +13,7 @@ import {
 } from "@/lib/goal-matrix";
 import GoalCalendar from "@/components/goal-calendar";
 import collapseStyles from "@/components/goal-calendar-collapse.module.css";
+import GoalSubgoals, { ActionCellFrame, SUBGOAL_RESERVE_CLASS } from "@/components/goal-subgoals";
 
 // Unsaved edits are kept in the browser until Save commits them to the repo.
 const LOCAL_KEY = "fadethat-goal-matrices-draft";
@@ -147,19 +148,19 @@ function fitCellText(el, base) {
   }
 }
 
-function Cell({ value, onChange, placeholder, kind, color, interactive, onFocus }) {
+function Cell({ value, onChange, placeholder, kind, color, interactive, onFocus, className }) {
   const ref = useRef(null);
 
   useLayoutEffect(() => {
     if (ref.current) {
       fitCellText(ref.current, CELL_FONT[kind]);
     }
-  }, [value, kind]);
+  }, [value, kind, className]);
 
   return (
     <textarea
       ref={ref}
-      className={`goal-cell goal-cell-${kind}`}
+      className={`goal-cell goal-cell-${kind}${className ? ` ${className}` : ""}`}
       style={color ? { backgroundColor: color } : undefined}
       value={value}
       placeholder={placeholder}
@@ -171,7 +172,16 @@ function Cell({ value, onChange, placeholder, kind, color, interactive, onFocus 
   );
 }
 
-function MatrixChart({ matrix, interactive, onEdit, onBlockClick, onCellFocus, registerBlock }) {
+function MatrixChart({
+  matrix,
+  interactive,
+  onEdit,
+  onBlockClick,
+  onCellFocus,
+  registerBlock,
+  openSubgoal,
+  onOpenSubgoals,
+}) {
   return (
     <div className="goal-chart">
       {Array.from({ length: 9 }, (_, block) => {
@@ -233,23 +243,32 @@ function MatrixChart({ matrix, interactive, onEdit, onBlockClick, onCellFocus, r
               }
 
               const a = RING.indexOf(pos);
+              const subgoals = matrix.subs[sub].children[a];
               return (
-                <Cell
+                <ActionCellFrame
                   key={pos}
-                  kind="action"
-                  value={matrix.subs[sub].actions[a]}
-                  placeholder="action"
+                  items={subgoals}
                   interactive={interactive}
-                  onFocus={focus}
-                  onChange={(value) =>
-                    onEdit((m) => ({
-                      ...m,
-                      subs: m.subs.map((s, i) =>
-                        i === sub ? { ...s, actions: s.actions.map((x, j) => (j === a ? value : x)) } : s
-                      ),
-                    }))
-                  }
-                />
+                  isOpen={openSubgoal?.sub === sub && openSubgoal?.action === a}
+                  onOpen={(anchor) => onOpenSubgoals(sub, a, anchor)}
+                >
+                  <Cell
+                    kind="action"
+                    className={subgoals.length ? SUBGOAL_RESERVE_CLASS : undefined}
+                    value={matrix.subs[sub].actions[a]}
+                    placeholder="action"
+                    interactive={interactive}
+                    onFocus={focus}
+                    onChange={(value) =>
+                      onEdit((m) => ({
+                        ...m,
+                        subs: m.subs.map((s, i) =>
+                          i === sub ? { ...s, actions: s.actions.map((x, j) => (j === a ? value : x)) } : s
+                        ),
+                      }))
+                    }
+                  />
+                </ActionCellFrame>
               );
             })}
 
@@ -289,6 +308,8 @@ export default function GoalMatrices({ initialData }) {
   const [pendingImages, setPendingImages] = useState({});
   const [sessionImages, setSessionImages] = useState({});
   const [lightbox, setLightbox] = useState(null);
+  // Open sub-goals popover: { matrixId, sub, action, anchor } (anchor = the action cell's frame).
+  const [subgoalTarget, setSubgoalTarget] = useState(null);
   // Matrix ids whose notes panel is collapsed; a per-browser view preference, not saved data.
   const [collapsedNotes, setCollapsedNotes] = useState(() => new Set());
 
@@ -545,6 +566,32 @@ export default function GoalMatrices({ initialData }) {
       }
     }
   };
+
+  // The camera moving (zoom, pan, delete) closes the sub-goals popover.
+  useEffect(() => {
+    setSubgoalTarget(null);
+  }, [view]);
+
+  const toggleSubgoals = (matrixId, sub, action, anchor) => {
+    setSubgoalTarget((current) =>
+      current && current.matrixId === matrixId && current.sub === sub && current.action === action
+        ? null
+        : { matrixId, sub, action, anchor }
+    );
+  };
+
+  const subgoalRef = useRef(subgoalTarget);
+  subgoalRef.current = subgoalTarget;
+  // Closing with Esc or × hands focus back to the action cell.
+  const closeSubgoals = useCallback((refocus) => {
+    const anchor = subgoalRef.current?.anchor;
+    setSubgoalTarget(null);
+    if (refocus) {
+      anchor?.querySelector("textarea")?.focus({ preventScroll: true });
+    }
+  }, []);
+
+  const subgoalMatrix = subgoalTarget ? matrices.find((m) => m.id === subgoalTarget.matrixId) : null;
 
   // Tabbing into a block outside the current view pans the camera to it.
   const handleCellFocus = (matrixId, block) => {
@@ -851,6 +898,8 @@ export default function GoalMatrices({ initialData }) {
                     }
                   }}
                   onCellFocus={(block) => handleCellFocus(matrix.id, block)}
+                  openSubgoal={subgoalTarget?.matrixId === matrix.id ? subgoalTarget : null}
+                  onOpenSubgoals={(sub, action, anchor) => toggleSubgoals(matrix.id, sub, action, anchor)}
                   registerBlock={(block, node) => {
                     const key = `${matrix.id}:${block}`;
                     if (node) blockRefs.current.set(key, node);
@@ -902,6 +951,26 @@ export default function GoalMatrices({ initialData }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={lightbox} alt="" />
         </button>
+      ) : null}
+
+      {subgoalMatrix ? (
+        <GoalSubgoals
+          anchor={subgoalTarget.anchor}
+          title={subgoalMatrix.subs[subgoalTarget.sub].actions[subgoalTarget.action]}
+          context={subgoalMatrix.subs[subgoalTarget.sub].goal || `sub-goal ${subgoalTarget.sub + 1}`}
+          color={SUB_COLORS[subgoalTarget.sub]}
+          items={subgoalMatrix.subs[subgoalTarget.sub].children[subgoalTarget.action]}
+          onClose={closeSubgoals}
+          onChange={(update) => {
+            const { sub, action } = subgoalTarget;
+            editMatrix(subgoalMatrix.id, (m) => ({
+              ...m,
+              subs: m.subs.map((s, i) =>
+                i === sub ? { ...s, children: s.children.map((c, j) => (j === action ? update(c) : c)) } : s
+              ),
+            }));
+          }}
+        />
       ) : null}
     </section>
   );
