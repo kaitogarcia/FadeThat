@@ -1,5 +1,5 @@
 {
-  "savedAt": 1792365905161,
+  "savedAt": 1792391817798,
   "matrices": [
     {
       "id": "75cd9dc0-bf46-43d4-8c9b-48899364215e",
@@ -254,7 +254,7 @@
       }
     ],
     "days": {
-      "2026-10-17": "hit"
+      "2026-11-20": "hit"
     },
     "counters": [
       {
@@ -277,9 +277,9 @@
       },
       {
         "id": "d6181737-b313-4766-b52b-c6efce60ff6a",
-        "label": "",
-        "value": 0,
-        "target": ""
+        "label": "specimen counter",
+        "value": 1,
+        "target": "105"
       }
     ],
     "ranges": [
@@ -288,7 +288,7 @@
         "start": "2026-11-19",
         "end": "2026-11-24",
         "color": "#5b7cfa",
-        "label": "colima"
+        "label": "boston"
       },
       {
         "id": "72255f20-f2a4-4fb3-90a8-ba01065dd6d9",
