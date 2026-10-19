@@ -65,12 +65,20 @@ export function normalizeSubgoals(list) {
         id = makeId();
       }
       seen.add(id);
+      // "note" rows are plain text: no checkbox, never counted as done or in totals.
+      const kind = item.kind === "note" ? "note" : "task";
       return {
         id,
         text: typeof item.text === "string" ? item.text.slice(0, MAX_SUBGOAL_TEXT) : "",
-        done: item.done === true,
+        done: kind === "task" && item.done === true,
+        kind,
       };
     });
+}
+
+// Only checkbox rows count toward a cell's done/total.
+export function subgoalTasks(items) {
+  return items.filter((item) => item.kind !== "note");
 }
 
 export function normalizeMatrix(raw) {
