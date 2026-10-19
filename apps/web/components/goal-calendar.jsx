@@ -15,9 +15,12 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 const WEEKDAYS = ["s", "m", "t", "w", "t", "f", "s"];
 const NEW_COLORS = ["#b9d6ff", "#ffd6a5", "#d6c2ff", "#ffe0f0", "#d2ecff", "#c4f0d2", "#ffc1d5", "#fff3a8"];
-// Saturated so highlight strips stay visible on top of pastel day colors.
+// Saturated: highlighter bands are drawn translucent, so they need strong base colors.
 const RANGE_COLORS = ["#5b7cfa", "#ff9f1c", "#2ec4b6", "#e84393", "#8e44ad", "#00a8e8"];
-const MAX_STRIPS = 3;
+// Dots shown per day before the rest collapse into "+n".
+const MAX_DOTS = 4;
+// Matches the cap in normalizeCalendar.
+const MAX_DAY_COLORS = 8;
 const ERASER = "eraser";
 
 function dateKey(date) {
@@ -46,23 +49,28 @@ function buildDays(start, end) {
 const COLUMN_DAYS = COLUMNS.map((column) => buildDays(column.start, column.end));
 const COLUMN_KEYS = COLUMNS.map((column) => ({ start: dateKey(column.start), end: dateKey(column.end) }));
 
-// Give each range a fixed lane (interval coloring) so its strip stays at the same height
-// on every day it covers and reads as one continuous band.
-function assignLanes(ranges) {
-  const sorted = [...ranges].sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end));
-  const laneEnds = [];
-  const lanes = new Map();
-  for (const range of sorted) {
-    let lane = laneEnds.findIndex((end) => end < range.start);
-    if (lane === -1) {
-      lane = laneEnds.length;
-      laneEnds.push(range.end);
-    } else {
-      laneEnds[lane] = range.end;
-    }
-    lanes.set(range.id, lane);
-  }
-  return lanes;
+// Stable draw order for overlapping highlighter bands, so they blend the same way on every day.
+function byStart(a, b) {
+  return a.start.localeCompare(b.start) || a.end.localeCompare(b.end) || a.id.localeCompare(b.id);
+}
+
+// One highlighter band on a day tile. It reaches across the grid gap to neighbors in the same
+// week row and column, and is rounded only where the range itself starts or ends.
+function Band({ dayKey, date, start, end, color, columnIndex, preview = false }) {
+  const columnKeys = COLUMN_KEYS[columnIndex];
+  const joinLeft = dayKey > start && date.getDay() !== 0 && dayKey !== columnKeys.start;
+  const joinRight = dayKey < end && date.getDay() !== 6 && dayKey !== columnKeys.end;
+  const classes = [
+    "goal-cal-band",
+    preview ? "is-preview" : "",
+    joinLeft ? "join-l" : "",
+    joinRight ? "join-r" : "",
+    dayKey === start ? "is-start" : "",
+    dayKey === end ? "is-end" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return <i className={classes} style={{ backgroundColor: color }} />;
 }
 const RANGE_KEYS = { start: dateKey(RANGE_START), end: dateKey(RANGE_END) };
 const END_LABEL = RANGE_END.toLocaleString("en-US", { month: "short", day: "numeric" }).toLowerCase();
@@ -232,11 +240,28 @@ export default function GoalCalendar({ calendar, onChange, collapsed = false, on
   const activeBrush = brush === ERASER || calendar.legend.some((item) => item.id === brush) ? brush : ERASER;
   const legendById = new Map(calendar.legend.map((item) => [item.id, item]));
 
-  const setDay = (key, id) => {
+  // op = { mode: "add" | "remove", id } changes one color on the day; { mode: "clear" } empties it.
+  const paintDay = (key, op) => {
     onChange((cal) => {
+      const current = cal.days[key] || [];
+      let next;
+      if (op.mode === "clear") {
+        next = [];
+      } else if (op.mode === "remove") {
+        next = current.filter((id) => id !== op.id);
+      } else {
+        if (current.includes(op.id) || current.length >= MAX_DAY_COLORS) {
+          return cal;
+        }
+        const order = new Map(cal.legend.map((item, index) => [item.id, index]));
+        next = [...current, op.id].sort((a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99));
+      }
+      if (op.mode !== "add" && next.length === current.length) {
+        return cal;
+      }
       const days = { ...cal.days };
-      if (id) {
-        days[key] = id;
+      if (next.length) {
+        days[key] = next;
       } else {
         delete days[key];
       }
@@ -266,17 +291,22 @@ export default function GoalCalendar({ calendar, onChange, collapsed = false, on
       pickRangeDay(key);
       return;
     }
-    // Clicking a day that already has this color clears it.
-    const clearing = activeBrush === ERASER || calendar.days[key] === activeBrush;
-    paintRef.current = { id: clearing ? null : activeBrush };
-    setDay(key, paintRef.current.id);
+    // The first day decides the stroke: add the color if the day lacks it, remove it if it has it.
+    // A drag then applies that same operation to every day it enters.
+    if (activeBrush === ERASER) {
+      paintRef.current = { mode: "clear" };
+    } else {
+      const has = (calendar.days[key] || []).includes(activeBrush);
+      paintRef.current = { mode: has ? "remove" : "add", id: activeBrush };
+    }
+    paintDay(key, paintRef.current);
   };
 
   const continuePaint = (key) => {
     if (rangePick?.start) {
       setHoverKey(key);
     } else if (paintRef.current) {
-      setDay(key, paintRef.current.id);
+      paintDay(key, paintRef.current);
     }
   };
 
@@ -312,7 +342,11 @@ export default function GoalCalendar({ calendar, onChange, collapsed = false, on
     onChange((cal) => ({
       ...cal,
       legend: cal.legend.filter((item) => item.id !== id),
-      days: Object.fromEntries(Object.entries(cal.days).filter(([, value]) => value !== id)),
+      days: Object.fromEntries(
+        Object.entries(cal.days)
+          .map(([key, ids]) => [key, ids.filter((value) => value !== id)])
+          .filter(([, ids]) => ids.length)
+      ),
     }));
   };
 
@@ -326,12 +360,17 @@ export default function GoalCalendar({ calendar, onChange, collapsed = false, on
     setBrush(item.id);
   };
 
-  const lanes = assignLanes(calendar.ranges);
+  const sortedRanges = [...calendar.ranges].sort(byStart);
+  // The color the next range will get, used for the picking preview.
+  const nextRangeColor = RANGE_COLORS[calendar.ranges.length % RANGE_COLORS.length];
 
+  // Days in the window that include each color.
   const counts = {};
-  for (const [key, id] of Object.entries(calendar.days)) {
+  for (const [key, ids] of Object.entries(calendar.days)) {
     if (key >= RANGE_KEYS.start && key <= RANGE_KEYS.end) {
-      counts[id] = (counts[id] || 0) + 1;
+      for (const id of ids) {
+        counts[id] = (counts[id] || 0) + 1;
+      }
     }
   }
 
@@ -394,22 +433,24 @@ export default function GoalCalendar({ calendar, onChange, collapsed = false, on
                   return <span className="goal-cal-blank" key={`blank-${index}`} aria-hidden="true" />;
                 }
                 const key = dateKey(date);
-                const item = legendById.get(calendar.days[key]);
+                const marks = (calendar.days[key] || []).map((id) => legendById.get(id)).filter(Boolean);
+                const shownMarks = marks.length > MAX_DOTS ? marks.slice(0, MAX_DOTS - 1) : marks;
                 const isFirst = date.getDate() === 1;
                 const isToday = key === todayKey;
                 const isPast = todayKey !== null && key < todayKey;
-                const covering = calendar.ranges.filter((range) => key >= range.start && key <= range.end);
+                const covering = sortedRanges.filter((range) => key >= range.start && key <= range.end);
                 const inPreview = preview && key >= preview[0] && key <= preview[1];
-                const labels = [item?.label, ...covering.map((range) => range.label)].filter(Boolean);
+                const labels = [...marks.map((mark) => mark.label), ...covering.map((range) => range.label)].filter(
+                  Boolean
+                );
                 return (
                   <button
                     type="button"
                     key={key}
                     className={`goal-cal-day${isToday ? " is-today" : ""}${isFirst ? " is-first" : ""}${
                       isPast ? " is-past" : ""
-                    }${inPreview ? " is-range-preview" : ""}`}
-                    style={item ? { backgroundColor: item.color } : undefined}
-                    aria-label={`${key}${labels.length ? `: ${labels.join(", ")}` : item ? ": colored" : ""}`}
+                    }${inPreview ? " is-range-preview" : ""}${covering.length ? " is-ranged" : ""}`}
+                    aria-label={`${key}${labels.length ? `: ${labels.join(", ")}` : marks.length ? ": colored" : ""}`}
                     title={labels.join(" · ") || undefined}
                     onPointerDown={(event) => {
                       event.preventDefault();
@@ -424,37 +465,53 @@ export default function GoalCalendar({ calendar, onChange, collapsed = false, on
                       }
                     }}
                   >
+                    {covering.length || inPreview ? (
+                      // Highlighter ink sits behind everything else on the tile.
+                      <span className="goal-cal-bands" aria-hidden="true">
+                        {covering.map((range) => (
+                          <Band
+                            key={range.id}
+                            dayKey={key}
+                            date={date}
+                            start={range.start}
+                            end={range.end}
+                            color={range.color}
+                            columnIndex={columnIndex}
+                          />
+                        ))}
+                        {inPreview ? (
+                          <Band
+                            dayKey={key}
+                            date={date}
+                            start={preview[0]}
+                            end={preview[1]}
+                            color={nextRangeColor}
+                            columnIndex={columnIndex}
+                            preview
+                          />
+                        ) : null}
+                      </span>
+                    ) : null}
                     {isFirst ? (
                       <span className="goal-cal-month-label">
                         {date.toLocaleString("en-US", { month: "short" }).toLowerCase()}
                       </span>
                     ) : null}
-                    {date.getDate()}
+                    <span className="goal-cal-num">{date.getDate()}</span>
                     {isPast ? (
                       // An SVG stroke, not a CSS gradient, so dark-mode extensions keep it visible.
                       <svg className="goal-cal-x" viewBox="0 0 10 10" aria-hidden="true">
                         <path d="M1.5 1.5 8.5 8.5M8.5 1.5 1.5 8.5" />
                       </svg>
                     ) : null}
-                    {covering.length ? (
-                      <span className="goal-cal-strips" aria-hidden="true">
-                        {covering.map((range) => {
-                          const lane = lanes.get(range.id);
-                          if (lane >= MAX_STRIPS) {
-                            return null;
-                          }
-                          // Reach across the gap to neighbors in the same week row and column.
-                          const columnKeys = COLUMN_KEYS[columnIndex];
-                          const joinLeft = key > range.start && date.getDay() !== 0 && key !== columnKeys.start;
-                          const joinRight = key < range.end && date.getDay() !== 6 && key !== columnKeys.end;
-                          return (
-                            <i
-                              key={range.id}
-                              className={`${joinLeft ? "join-l" : ""} ${joinRight ? "join-r" : ""}`.trim() || undefined}
-                              style={{ backgroundColor: range.color, bottom: `${3 + lane * 6}px` }}
-                            />
-                          );
-                        })}
+                    {marks.length ? (
+                      <span className="goal-cal-dots" aria-hidden="true">
+                        {shownMarks.map((mark) => (
+                          <i key={mark.id} style={{ backgroundColor: mark.color }} />
+                        ))}
+                        {marks.length > shownMarks.length ? (
+                          <span className="goal-cal-dots-more">+{marks.length - shownMarks.length}</span>
+                        ) : null}
                       </span>
                     ) : null}
                   </button>
@@ -465,112 +522,114 @@ export default function GoalCalendar({ calendar, onChange, collapsed = false, on
         ))}
       </div>
 
-      <div className="goal-legend">
-        <p className="goal-legend-title">legend · pick a color, then click or drag across days</p>
-        {calendar.legend.map((item) => (
-          <div className={`goal-legend-row${activeBrush === item.id ? " is-active" : ""}`} key={item.id}>
-            <button
-              type="button"
-              className="goal-legend-pick"
-              aria-label={`Paint with ${item.label || "this color"}`}
-              aria-pressed={activeBrush === item.id}
-              onClick={() => setBrush(item.id)}
-            >
-              <span style={{ backgroundColor: item.color }} />
+      <div className="goal-cal-menus">
+        <div className="goal-legend">
+          <p className="goal-legend-title">legend · pick a color, tap or drag days</p>
+          {calendar.legend.map((item) => (
+            <div className={`goal-legend-row${activeBrush === item.id ? " is-active" : ""}`} key={item.id}>
+              <button
+                type="button"
+                className="goal-legend-pick"
+                aria-label={`Paint with ${item.label || "this color"}`}
+                aria-pressed={activeBrush === item.id}
+                onClick={() => setBrush(item.id)}
+              >
+                <span style={{ backgroundColor: item.color }} />
+              </button>
+              <input
+                type="color"
+                className="goal-legend-color"
+                value={item.color}
+                aria-label="Change color"
+                onChange={(event) => updateLegend(item.id, { color: event.target.value })}
+              />
+              <input
+                type="text"
+                className="goal-legend-label"
+                value={item.label}
+                placeholder="label"
+                maxLength={60}
+                onFocus={() => setBrush(item.id)}
+                onChange={(event) => updateLegend(item.id, { label: event.target.value })}
+              />
+              <span className="goal-legend-count" title="days oct – jan">
+                {counts[item.id] || 0}
+              </span>
+              <button
+                type="button"
+                className="goal-legend-remove"
+                aria-label={`Remove ${item.label || "color"}`}
+                onClick={() => removeLegend(item.id)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+
+          <div className="goal-legend-tools">
+            <button type="button" onClick={addLegend} disabled={calendar.legend.length >= 20}>
+              + color
             </button>
-            <input
-              type="color"
-              className="goal-legend-color"
-              value={item.color}
-              aria-label="Change color"
-              onChange={(event) => updateLegend(item.id, { color: event.target.value })}
-            />
-            <input
-              type="text"
-              className="goal-legend-label"
-              value={item.label}
-              placeholder="label"
-              maxLength={60}
-              onFocus={() => setBrush(item.id)}
-              onChange={(event) => updateLegend(item.id, { label: event.target.value })}
-            />
-            <span className="goal-legend-count" title="days oct – jan">
-              {counts[item.id] || 0}
-            </span>
             <button
               type="button"
-              className="goal-legend-remove"
-              aria-label={`Remove ${item.label || "color"}`}
-              onClick={() => removeLegend(item.id)}
+              className={activeBrush === ERASER ? "is-active" : undefined}
+              aria-pressed={activeBrush === ERASER}
+              onClick={() => setBrush(ERASER)}
             >
-              ×
+              eraser
             </button>
           </div>
-        ))}
-
-        <div className="goal-legend-tools">
-          <button type="button" onClick={addLegend} disabled={calendar.legend.length >= 20}>
-            + color
-          </button>
-          <button
-            type="button"
-            className={activeBrush === ERASER ? "is-active" : undefined}
-            aria-pressed={activeBrush === ERASER}
-            onClick={() => setBrush(ERASER)}
-          >
-            eraser
-          </button>
         </div>
-      </div>
 
-      <div className="goal-ranges">
-        <p className="goal-legend-title">highlights · date ranges drawn as strips under the days</p>
-        {calendar.ranges.map((range) => (
-          <div className="goal-legend-row goal-range-row" key={range.id}>
-            <input
-              type="color"
-              className="goal-legend-color"
-              value={range.color}
-              aria-label="Change highlight color"
-              onChange={(event) => updateRange(range.id, { color: event.target.value })}
-            />
-            <input
-              type="text"
-              className="goal-legend-label"
-              value={range.label}
-              placeholder="label"
-              maxLength={60}
-              onChange={(event) => updateRange(range.id, { label: event.target.value })}
-            />
-            <span className="goal-range-dates">
-              {range.start === range.end ? shortDate(range.start) : `${shortDate(range.start)} – ${shortDate(range.end)}`}
-            </span>
+        <div className="goal-ranges">
+          <p className="goal-legend-title">highlights · date ranges</p>
+          {calendar.ranges.map((range) => (
+            <div className="goal-legend-row goal-range-row" key={range.id}>
+              <input
+                type="color"
+                className="goal-legend-color"
+                value={range.color}
+                aria-label="Change highlight color"
+                onChange={(event) => updateRange(range.id, { color: event.target.value })}
+              />
+              <input
+                type="text"
+                className="goal-legend-label"
+                value={range.label}
+                placeholder="label"
+                maxLength={60}
+                onChange={(event) => updateRange(range.id, { label: event.target.value })}
+              />
+              <span className="goal-range-dates">
+                {range.start === range.end ? shortDate(range.start) : `${shortDate(range.start)} – ${shortDate(range.end)}`}
+              </span>
+              <button
+                type="button"
+                className="goal-legend-remove"
+                aria-label={`Remove ${range.label || "highlight"}`}
+                onClick={() => removeRange(range.id)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          <div className="goal-legend-tools">
             <button
               type="button"
-              className="goal-legend-remove"
-              aria-label={`Remove ${range.label || "highlight"}`}
-              onClick={() => removeRange(range.id)}
+              className={rangePick ? "is-active" : undefined}
+              disabled={!rangePick && calendar.ranges.length >= 50}
+              onClick={() => {
+                setRangePick(rangePick ? null : { start: null });
+                setHoverKey(null);
+              }}
             >
-              ×
+              {!rangePick
+                ? "+ highlight range"
+                : rangePick.start
+                  ? `pick end day (from ${shortDate(rangePick.start)}) · cancel`
+                  : "pick start day · cancel"}
             </button>
           </div>
-        ))}
-        <div className="goal-legend-tools">
-          <button
-            type="button"
-            className={rangePick ? "is-active" : undefined}
-            disabled={!rangePick && calendar.ranges.length >= 50}
-            onClick={() => {
-              setRangePick(rangePick ? null : { start: null });
-              setHoverKey(null);
-            }}
-          >
-            {!rangePick
-              ? "+ highlight range"
-              : rangePick.start
-                ? `pick end day (from ${shortDate(rangePick.start)}) · cancel`
-                : "pick start day · cancel"}
-          </button>
         </div>
       </div>
     </aside>
