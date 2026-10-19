@@ -98,6 +98,7 @@ export function normalizeMatrix(raw) {
 
 const MAX_LEGEND = 20;
 const MAX_DAYS = 5000;
+const MAX_DAY_COLORS = 8;
 const MAX_COUNTERS = 20;
 const MAX_RANGES = 50;
 const MAX_COUNT = 1_000_000;
@@ -115,12 +116,18 @@ export function normalizeCalendar(raw) {
       label: typeof item.label === "string" ? item.label.slice(0, 60) : "",
     }));
 
-  const ids = new Set(legend.map((item) => item.id));
+  // Each day holds a list of legend ids, drawn as dots. Older data stored one id string per day.
+  const order = new Map(legend.map((item, index) => [item.id, index]));
   const days = {};
   const entries = raw?.days && typeof raw.days === "object" ? Object.entries(raw.days) : [];
-  for (const [date, id] of entries.slice(0, MAX_DAYS)) {
-    if (DATE_PATTERN.test(date) && ids.has(id)) {
-      days[date] = id;
+  for (const [date, value] of entries.slice(0, MAX_DAYS)) {
+    if (!DATE_PATTERN.test(date)) {
+      continue;
+    }
+    const list = (Array.isArray(value) ? value : [value]).filter((id) => order.has(id));
+    const unique = [...new Set(list)].sort((a, b) => order.get(a) - order.get(b)).slice(0, MAX_DAY_COLORS);
+    if (unique.length) {
+      days[date] = unique;
     }
   }
 
@@ -140,7 +147,7 @@ export function normalizeCalendar(raw) {
       };
     });
 
-  // Highlighted date ranges, drawn as strips under the days (separate from day colors).
+  // Highlighted date ranges, drawn as highlighter bands behind the days (separate from day colors).
   const rangeIds = new Set();
   const ranges = (Array.isArray(raw?.ranges) ? raw.ranges : [])
     .filter(

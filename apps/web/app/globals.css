@@ -1697,37 +1697,105 @@ a {
   color: var(--g-muted);
 }
 
-/* Highlighted ranges: stacked strips along the bottom of each covered day. */
-/* Highlighted ranges: one strip per lane, joined across the 4px day gap into a continuous band. */
-.goal-cal-strips {
+/* Number above the highlighter ink. */
+.goal-cal-num {
+  position: relative;
+}
+
+/* Highlighter ranges: a translucent band covering the whole tile, behind the tile's content.
+   The tile is its own stacking context, so z-index -1 sits above its background but below
+   the number, dots, past-day X and today frame. */
+.goal-cal-day {
+  isolation: isolate;
+}
+
+/* Highlighted tiles drop their gray fill so the band reads as one even stroke across the gaps. */
+.goal-cal-day.is-ranged,
+.goal-cal-day.is-range-preview {
+  background: var(--g-surface);
+}
+
+.goal-cal-bands {
   position: absolute;
   inset: 0;
+  z-index: -1;
   pointer-events: none;
 }
 
-.goal-cal-strips i {
+.goal-cal-band {
   position: absolute;
-  left: 3px;
-  right: 3px;
-  height: 4px;
-  border-radius: 2px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: var(--g-radius-sm);
+  opacity: 0.42;
+  mix-blend-mode: multiply;
 }
 
-/* Half of the grid gap on each side, so neighbouring strips meet in the middle. */
-.goal-cal-strips i.join-l {
+/* Half of the 4px grid gap on each side, so neighbouring days' bands meet in the middle. */
+.goal-cal-band.join-l {
   left: -2px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 
-.goal-cal-strips i.join-r {
+.goal-cal-band.join-r {
   right: -2px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.goal-cal-day.is-range-preview {
-  box-shadow: inset 0 0 0 2px #5b7cfa;
+/* Range being picked: same band, lighter. */
+.goal-cal-band.is-preview {
+  opacity: 0.3;
+}
+
+/* Day colors: one small dot per legend color, in legend order. */
+.goal-cal-dots {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.goal-cal-dots i {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--g-surface);
+}
+
+.goal-cal-dots-more {
+  font-size: 0.5rem;
+  font-weight: 600;
+  line-height: 6px;
+  color: var(--g-muted);
+}
+
+/* Legend and highlights side by side under the calendar; they stack when the panel is narrow. */
+.goal-cal-menus {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px 22px;
+  align-items: start;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--g-line);
+}
+
+.goal-cal-menus > .goal-legend,
+.goal-cal-menus > .goal-ranges {
+  min-width: 0;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 
 .goal-ranges {
@@ -1770,6 +1838,16 @@ a {
 .goal-cal-day.is-today {
   box-shadow: inset 0 0 0 2px var(--g-accent);
   font-weight: 700;
+}
+
+/* Repeat the frame above the highlighter ink so it stays crisp on highlighted days. */
+.goal-cal-day.is-today::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px var(--g-accent);
+  pointer-events: none;
 }
 
 /* Legend */
@@ -1941,6 +2019,10 @@ a {
 
 @media (max-width: 560px) {
   .goal-cal-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-cal-menus {
     grid-template-columns: 1fr;
   }
 }
