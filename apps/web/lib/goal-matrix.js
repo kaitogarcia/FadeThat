@@ -4,6 +4,9 @@ export const MAX_NOTES = 4000;
 export const MAX_IMAGES = 30;
 export const IMAGE_ID_PATTERN = /^[a-z0-9-]{8,64}$/;
 export const IMAGE_EXTS = ["webp", "jpg", "png"];
+// Each action cell can hold its own short checklist of sub-goals.
+export const MAX_SUBGOALS = 20;
+export const MAX_SUBGOAL_TEXT = 200;
 
 // Pasted note images live in the repo at public/goal-images/<id>.<ext>.
 export function imagePath(image) {
@@ -42,8 +45,32 @@ export function emptyMatrix() {
     goal: "",
     notes: "",
     images: [],
-    subs: Array.from({ length: 8 }, () => ({ goal: "", actions: Array(8).fill("") })),
+    subs: Array.from({ length: 8 }, () => ({
+      goal: "",
+      actions: Array(8).fill(""),
+      children: Array.from({ length: 8 }, () => []),
+    })),
   };
+}
+
+// Sub-goals of one action cell: [{ id, text, done }]. Missing or malformed input becomes [].
+export function normalizeSubgoals(list) {
+  const seen = new Set();
+  return (Array.isArray(list) ? list : [])
+    .filter((item) => item && typeof item === "object")
+    .slice(0, MAX_SUBGOALS)
+    .map((item) => {
+      let id = typeof item.id === "string" && item.id ? item.id.slice(0, 120) : "";
+      if (!id || seen.has(id)) {
+        id = makeId();
+      }
+      seen.add(id);
+      return {
+        id,
+        text: typeof item.text === "string" ? item.text.slice(0, MAX_SUBGOAL_TEXT) : "",
+        done: item.done === true,
+      };
+    });
 }
 
 export function normalizeMatrix(raw) {
@@ -53,9 +80,11 @@ export function normalizeMatrix(raw) {
   const subs = Array.from({ length: 8 }, (_, k) => {
     const sub = Array.isArray(raw.subs) ? raw.subs[k] : null;
     const actions = Array.isArray(sub?.actions) ? sub.actions : [];
+    const children = Array.isArray(sub?.children) ? sub.children : [];
     return {
       goal: text(sub?.goal),
       actions: Array.from({ length: 8 }, (_, a) => text(actions[a])),
+      children: Array.from({ length: 8 }, (_, a) => normalizeSubgoals(children[a])),
     };
   });
   return {
