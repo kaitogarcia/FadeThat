@@ -1354,91 +1354,66 @@ a {
   color: rgba(0, 0, 0, 0.45);
 }
 
-/* ---------- Goals page: hyper-modern theme ---------- */
-/* Monochrome paper + ink, one acid accent, hairline rules, square corners, type does the work. */
+/* ---------- Goals page: sleek theme ---------- */
 
 .page-goals {
-  --g-bg: #ededea;
-  --g-surface: #fbfbf9;
-  --g-surface-2: #e4e4e0;
-  --g-ink: #0b0b0b;
-  --g-line: rgba(11, 11, 11, 0.12);
-  --g-line-strong: rgba(11, 11, 11, 0.32);
-  --g-text: #0b0b0b;
-  --g-muted: #5c5c58;
-  --g-faint: #9a9a95;
-  --g-accent: #d2ff1f;
-  --g-accent-ink: #0b0b0b;
-  --g-danger: #ff2a12;
-  --g-radius: 0;
-  --g-radius-md: 0;
-  --g-radius-sm: 2px;
-  --g-ease: cubic-bezier(0.2, 0, 0, 1);
-  --g-fast: 120ms;
-  /* One-line swap: put the licensed ABC Areal here (see app/goals/page.jsx). */
-  --g-font: var(--font-goals), "ABC Areal", Arial, Helvetica, sans-serif;
-  --g-label: 11px;
-  --g-track: 0.14em;
+  --g-bg: #f5f5f7;
+  --g-surface: #ffffff;
+  --g-surface-2: #f2f2f5;
+  --g-line: rgba(0, 0, 0, 0.07);
+  --g-line-strong: rgba(0, 0, 0, 0.14);
+  --g-text: #1d1d1f;
+  --g-muted: #6e6e73;
+  --g-faint: #a1a1a6;
+  --g-accent: #1d1d1f;
+  --g-danger: #d70015;
+  --g-radius: 18px;
+  --g-radius-md: 12px;
+  --g-radius-sm: 8px;
+  --g-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 10px 30px rgba(0, 0, 0, 0.06);
+  --g-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --g-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Areal stand-in (Arimo, loaded in app/goals/page.jsx as --font-goals); swap the file there for licensed Areal. */
+  --g-font: var(--font-goals), "Helvetica Neue", Helvetica, Arial, sans-serif;
   --shell-max: 1400px;
   --shell-gutter: 30px;
   min-height: 100vh;
   background: var(--g-bg);
   color: var(--g-text);
-  font-family: var(--g-font);
-}
-
-.page-goals ::selection {
-  background: var(--g-accent);
-  color: var(--g-accent-ink);
 }
 
 .page-goals .shell {
   padding: var(--space-9) 0 var(--space-10);
 }
 
-/* Nav: a ruled strip, small caps-style labels, active link marked in accent. */
 .page-goals .nav {
-  gap: 28px;
-  border: 0;
-  border-top: 1px solid var(--g-ink);
-  border-bottom: 1px solid var(--g-ink);
-  border-radius: 0;
-  background: transparent;
-  backdrop-filter: none;
-  box-shadow: none;
-  padding: 12px 0;
+  border: 1px solid var(--g-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(16px);
+  box-shadow: var(--g-shadow-sm);
+  padding: 12px 24px;
   font-family: var(--g-font);
 }
 
 .page-goals .nav a {
-  font-family: var(--g-font);
-  font-size: var(--g-label);
-  font-weight: 700;
-  letter-spacing: var(--g-track);
-  text-transform: uppercase;
   color: var(--g-muted);
-  padding: 3px 6px;
-  margin: -3px -6px;
-  transition: color var(--g-fast) var(--g-ease), background-color var(--g-fast) var(--g-ease);
+  letter-spacing: 0;
+  transition: color 160ms var(--g-ease);
 }
 
-.page-goals .nav a:hover {
+.page-goals .nav a:hover,
+.page-goals .nav a[aria-current="page"] {
   color: var(--g-text);
 }
 
-.page-goals .nav a[aria-current="page"] {
-  background: var(--g-accent);
-  color: var(--g-accent-ink);
-}
-
 .goal-wrap {
-  margin-top: 28px;
+  margin-top: var(--space-10);
   display: grid;
   grid-template-columns: 620px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
   font-family: var(--g-font);
-  font-feature-settings: "tnum" 1;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -1454,55 +1429,38 @@ a {
 
 .goal-wrap button:focus-visible,
 .goal-wrap input:focus-visible {
-  outline: 2px solid var(--g-ink);
-  outline-offset: 1px;
+  outline: 2px solid rgba(0, 113, 227, 0.55);
+  outline-offset: 2px;
 }
 
 /* ---------- Calendar panel ---------- */
 
 .goal-cal {
-  border: 1px solid var(--g-ink);
-  border-radius: 0;
+  border: 1px solid var(--g-line);
+  border-radius: var(--g-radius);
   background: var(--g-surface);
-  padding: 0 20px 20px;
+  box-shadow: var(--g-shadow);
+  padding: 22px;
   user-select: none;
-}
-
-/* Section rules run edge to edge of the panel. */
-.goal-cal > * + * {
-  margin-left: -20px;
-  margin-right: -20px;
-  padding-left: 20px;
-  padding-right: 20px;
 }
 
 .goal-cal-countdown {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 0 16px;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 18px;
 }
 
 .goal-cal-countdown-number {
-  margin-left: -0.06em;
-  font-size: 196px;
+  font-size: clamp(2.6rem, 4vw, 3.4rem);
   font-weight: 700;
-  line-height: 0.74;
-  letter-spacing: -0.075em;
+  line-height: 1;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
-  color: var(--g-ink);
 }
 
 .goal-cal-countdown-label {
-  padding-bottom: 1px;
-  white-space: nowrap;
-  text-align: right;
-  font-size: var(--g-label);
-  font-weight: 700;
-  line-height: 1.35;
-  letter-spacing: var(--g-track);
-  text-transform: uppercase;
+  font-size: 1rem;
   color: var(--g-muted);
 }
 
@@ -1514,10 +1472,10 @@ a {
   grid-template-columns: max-content max-content max-content max-content max-content;
   justify-content: start;
   align-items: center;
-  column-gap: 8px;
-  row-gap: 6px;
-  padding-block: 14px;
-  border-top: 1px solid var(--g-ink);
+  column-gap: 6px;
+  row-gap: 8px;
+  padding: 16px 0;
+  border-top: 1px solid var(--g-line);
   border-bottom: 1px solid var(--g-line);
 }
 
@@ -1526,7 +1484,7 @@ a {
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
   align-items: center;
-  font-size: 15px;
+  font-size: 0.95rem;
   line-height: 1.4;
 }
 
@@ -1537,18 +1495,17 @@ a {
   min-inline-size: 1ch;
   border: 0;
   border-bottom: 1px solid transparent;
-  border-radius: 0;
   background: none;
   padding: 0 1px;
   font: inherit;
   color: var(--g-text);
   outline: none;
-  transition: border-color var(--g-fast) var(--g-ease);
+  transition: border-color 160ms var(--g-ease);
 }
 
 .goal-counter input:hover,
 .goal-counter input:focus {
-  border-bottom-color: var(--g-ink);
+  border-bottom-color: var(--g-line-strong);
 }
 
 .goal-counter input::placeholder {
@@ -1556,48 +1513,49 @@ a {
 }
 
 .goal-counter-label {
+  color: var(--g-muted);
+}
+
+.goal-counter-label:focus {
   color: var(--g-text);
 }
 
 .goal-counter-controls {
   display: inline-flex;
   align-items: center;
-  gap: 0;
+  gap: 4px;
   align-self: center;
 }
 
 .goal-counter-controls button {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--g-line-strong);
-  border-radius: 0;
-  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  background: var(--g-surface-2);
   padding: 0;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1;
   color: var(--g-muted);
   cursor: pointer;
-  transition: background-color var(--g-fast) var(--g-ease), color var(--g-fast) var(--g-ease),
-    border-color var(--g-fast) var(--g-ease);
+  transition: background-color 120ms var(--g-ease), color 120ms var(--g-ease), transform 120ms var(--g-ease);
 }
 
 .goal-counter-controls button:hover {
-  border-color: var(--g-ink);
-  background: var(--g-ink);
+  background: var(--g-accent);
   color: var(--g-surface);
 }
 
 .goal-counter-controls button:active {
-  background: var(--g-accent);
-  color: var(--g-accent-ink);
+  transform: scale(0.88);
 }
 
 .goal-counter-value {
-  min-width: 2.4ch;
+  min-width: 1.6ch;
   text-align: center;
-  font-weight: 700;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1623,7 +1581,7 @@ a {
   color: var(--g-faint);
   cursor: pointer;
   opacity: 0;
-  transition: opacity var(--g-fast) var(--g-ease), color var(--g-fast) var(--g-ease);
+  transition: opacity 160ms var(--g-ease), color 160ms var(--g-ease);
 }
 
 .goal-counter:hover .goal-counter-remove,
@@ -1644,17 +1602,13 @@ a {
 .goal-counter-add {
   grid-column: 1 / -1;
   justify-self: start;
-  margin-top: 4px;
   border: 0;
   background: none;
   padding: 0;
-  font-size: var(--g-label);
-  font-weight: 700;
-  letter-spacing: var(--g-track);
-  text-transform: uppercase;
+  font-size: 0.9rem;
   color: var(--g-faint);
   cursor: pointer;
-  transition: color var(--g-fast) var(--g-ease);
+  transition: color 160ms var(--g-ease);
 }
 
 .goal-counter-add:hover:not(:disabled) {
@@ -1670,40 +1624,33 @@ a {
 .goal-cal-columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  padding-top: 16px;
+  gap: 22px;
+  padding-top: 18px;
 }
 
 .goal-cal-column-title {
-  margin: 0 0 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--g-ink);
-  font-size: var(--g-label);
-  font-weight: 700;
-  letter-spacing: var(--g-track);
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--g-text);
+  color: var(--g-muted);
 }
 
 .goal-cal-weekdays,
 .goal-cal-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 2px;
+  gap: 4px;
 }
 
 .goal-cal-weekdays {
-  margin-bottom: 4px;
-  text-align: left;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 500;
   text-transform: uppercase;
   color: var(--g-faint);
-}
-
-.goal-cal-weekdays span {
-  padding-left: 4px;
 }
 
 .goal-cal-blank {
@@ -1714,45 +1661,44 @@ a {
   position: relative;
   aspect-ratio: 1;
   min-width: 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--g-radius-sm);
   background: var(--g-surface-2);
-  padding: 4px 5px;
+  padding: 0;
   font: inherit;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1;
+  font-size: 0.82rem;
   font-variant-numeric: tabular-nums;
   color: var(--g-text);
   cursor: crosshair;
   touch-action: none;
-  transition: box-shadow var(--g-fast) var(--g-ease);
+  transition: background-color 160ms var(--g-ease), transform 120ms var(--g-ease), box-shadow 160ms var(--g-ease);
 }
 
 .goal-cal-day:hover {
-  box-shadow: inset 0 0 0 1px var(--g-ink);
+  box-shadow: inset 0 0 0 1px var(--g-line-strong);
+}
+
+.goal-cal-day:active {
+  transform: scale(0.94);
 }
 
 .goal-cal-day.is-first {
-  font-weight: 700;
+  font-weight: 600;
 }
 
-/* Month tag sits top-right so the date number keeps the top-left corner. */
 .goal-cal-month-label {
   position: absolute;
-  top: 4px;
-  right: 5px;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  top: 2px;
+  left: 4px;
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--g-muted);
 }
 
-/* Highlighted ranges: one strip per lane, joined across the 2px day gap into a continuous band. */
+/* Highlighted ranges: stacked strips along the bottom of each covered day. */
+/* Highlighted ranges: one strip per lane, joined across the 4px day gap into a continuous band. */
 .goal-cal-strips {
   position: absolute;
   inset: 0;
@@ -1764,28 +1710,32 @@ a {
   left: 3px;
   right: 3px;
   height: 4px;
-  border-radius: 0;
+  border-radius: 2px;
 }
 
 /* Half of the grid gap on each side, so neighbouring strips meet in the middle. */
 .goal-cal-strips i.join-l {
-  left: -1px;
+  left: -2px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .goal-cal-strips i.join-r {
-  right: -1px;
+  right: -2px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .goal-cal-day.is-range-preview {
-  box-shadow: inset 0 0 0 2px var(--g-ink);
+  box-shadow: inset 0 0 0 2px #5b7cfa;
 }
 
 .goal-ranges {
-  margin-top: 18px;
-  padding-top: 14px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--g-line);
   display: grid;
-  gap: 0;
+  gap: 4px;
 }
 
 .goal-legend-row.goal-range-row {
@@ -1793,10 +1743,7 @@ a {
 }
 
 .goal-range-dates {
-  font-size: var(--g-label);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
   color: var(--g-muted);
   white-space: nowrap;
@@ -1805,53 +1752,38 @@ a {
 /* Days that have passed get a thin red X over them. */
 .goal-cal-x {
   position: absolute;
-  inset: 14%;
-  width: 72%;
-  height: 72%;
+  inset: 16%;
+  width: 68%;
+  height: 68%;
   fill: none;
-  stroke: var(--g-danger);
-  stroke-width: 0.9;
-  stroke-linecap: butt;
-  opacity: 0.85;
+  stroke: #ff3b30;
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.8;
   pointer-events: none;
 }
 
 .goal-cal-day.is-past {
-  color: var(--g-faint);
+  color: var(--g-muted);
 }
 
-/* Today: ink frame plus an accent corner flag. */
 .goal-cal-day.is-today {
-  box-shadow: inset 0 0 0 2px var(--g-ink);
+  box-shadow: inset 0 0 0 2px var(--g-accent);
   font-weight: 700;
-}
-
-.goal-cal-day.is-today::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 9px;
-  height: 9px;
-  background: var(--g-accent);
-  box-shadow: -1px 1px 0 0 var(--g-ink);
 }
 
 /* Legend */
 .goal-legend {
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--g-ink);
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--g-line);
   display: grid;
-  gap: 0;
+  gap: 4px;
 }
 
 .goal-legend-title {
-  margin: 0 0 8px;
-  font-size: var(--g-label);
-  font-weight: 700;
-  letter-spacing: var(--g-track);
-  text-transform: uppercase;
+  margin: 0 0 6px;
+  font-size: 0.75rem;
   color: var(--g-faint);
 }
 
@@ -1860,10 +1792,9 @@ a {
   grid-template-columns: 28px 28px minmax(0, 1fr) auto 24px;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px solid var(--g-line);
-  border-radius: 0;
-  padding: 2px 4px;
-  transition: background-color var(--g-fast) var(--g-ease);
+  border-radius: var(--g-radius-sm);
+  padding: 4px 6px;
+  transition: background-color 160ms var(--g-ease);
 }
 
 .goal-legend-row:hover {
@@ -1871,7 +1802,7 @@ a {
 }
 
 .goal-legend-row.is-active {
-  background: var(--g-accent);
+  background: var(--g-surface-2);
 }
 
 .goal-legend-pick,
@@ -1887,22 +1818,23 @@ a {
 }
 
 .goal-legend-pick span {
-  width: 14px;
-  height: 14px;
-  border-radius: 0;
-  box-shadow: inset 0 0 0 1px var(--g-line-strong);
-  transition: box-shadow var(--g-fast) var(--g-ease);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  transition: transform 160ms var(--g-ease), box-shadow 160ms var(--g-ease);
 }
 
 .goal-legend-row.is-active .goal-legend-pick span {
-  box-shadow: inset 0 0 0 1px var(--g-ink), 0 0 0 2px var(--g-ink);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px var(--g-surface), 0 0 0 4px var(--g-accent);
 }
 
 .goal-legend-color {
-  width: 22px;
-  height: 22px;
-  border: 1px solid var(--g-line-strong);
-  border-radius: 0;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 6px;
   background: none;
   padding: 0;
   cursor: pointer;
@@ -1914,21 +1846,16 @@ a {
 
 .goal-legend-color::-webkit-color-swatch {
   border: 0;
-  border-radius: 0;
-}
-
-.goal-legend-color::-moz-color-swatch {
-  border: 0;
-  border-radius: 0;
+  border-radius: 6px;
 }
 
 .goal-legend-label {
   min-width: 0;
   border: 0;
   background: none;
-  padding: 6px 2px;
+  padding: 4px 2px;
   font: inherit;
-  font-size: 14px;
+  font-size: 0.9rem;
   color: var(--g-text);
   outline: none;
 }
@@ -1938,30 +1865,25 @@ a {
 }
 
 .goal-legend-count {
-  min-width: 28px;
-  border: 1px solid var(--g-line-strong);
-  border-radius: 0;
-  background: transparent;
-  padding: 2px 6px;
+  min-width: 24px;
+  border-radius: 999px;
+  background: var(--g-surface);
+  padding: 1px 8px;
   text-align: center;
-  font-size: var(--g-label);
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: 0.72rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--g-text);
-}
-
-.goal-legend-row.is-active .goal-legend-count {
-  border-color: var(--g-ink);
+  color: var(--g-muted);
 }
 
 .goal-legend-remove {
   width: 24px;
   height: 24px;
+  border-radius: 50%;
   font-size: 1rem;
   color: var(--g-faint);
   opacity: 0;
-  transition: opacity var(--g-fast) var(--g-ease), color var(--g-fast) var(--g-ease);
+  transition: opacity 160ms var(--g-ease), color 160ms var(--g-ease);
 }
 
 .goal-legend-row:hover .goal-legend-remove,
@@ -1979,45 +1901,35 @@ a {
   }
 }
 
-/* Segmented tool bar: buttons share borders. */
 .goal-legend-tools {
   display: flex;
-  gap: 0;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .goal-legend-tools button {
   flex: 1;
-  height: 34px;
-  border: 1px solid var(--g-ink);
-  border-radius: 0;
-  background: transparent;
-  font-size: var(--g-label);
-  font-weight: 700;
-  letter-spacing: var(--g-track);
-  text-transform: uppercase;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--g-surface-2);
+  font-size: 0.85rem;
   color: var(--g-text);
   cursor: pointer;
-  transition: background-color var(--g-fast) var(--g-ease), color var(--g-fast) var(--g-ease);
-}
-
-.goal-legend-tools button + button {
-  margin-left: -1px;
+  transition: background-color 160ms var(--g-ease), color 160ms var(--g-ease);
 }
 
 .goal-legend-tools button:hover:not(:disabled) {
-  background: var(--g-ink);
+  background: #e8e8ed;
+}
+
+.goal-legend-tools button.is-active {
+  background: var(--g-accent);
   color: var(--g-surface);
 }
 
-.goal-legend-tools button.is-active,
-.goal-legend-tools button.is-active:hover {
-  background: var(--g-accent);
-  color: var(--g-accent-ink);
-}
-
 .goal-legend-tools button:disabled {
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: default;
 }
 
@@ -2030,10 +1942,6 @@ a {
 @media (max-width: 560px) {
   .goal-cal-columns {
     grid-template-columns: 1fr;
-  }
-
-  .goal-cal-countdown-number {
-    font-size: 120px;
   }
 }
 
@@ -2048,20 +1956,16 @@ a {
 }
 
 .goal-hud-top {
-  min-height: 36px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .goal-crumbs {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
-  font-size: var(--g-label);
-  font-weight: 700;
-  letter-spacing: var(--g-track);
-  text-transform: uppercase;
+  font-size: 1rem;
   color: var(--g-faint);
 }
 
@@ -2071,21 +1975,19 @@ a {
   text-overflow: ellipsis;
   white-space: nowrap;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--g-radius-sm);
   background: none;
-  padding: 5px 6px;
+  padding: 4px 8px;
   font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
+  font-weight: 500;
   color: var(--g-text);
   cursor: pointer;
-  transition: background-color var(--g-fast) var(--g-ease), color var(--g-fast) var(--g-ease);
+  transition: background-color 160ms var(--g-ease);
 }
 
 .goal-crumbs button:hover,
 .goal-crumbs button:focus-visible {
-  background: var(--g-ink);
-  color: var(--g-surface);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .goal-crumb-current {
@@ -2093,66 +1995,53 @@ a {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 5px 6px;
+  padding: 4px 8px;
   color: var(--g-muted);
 }
 
 .goal-actions {
   display: flex;
-  gap: 0;
+  gap: 8px;
 }
 
 .goal-actions button {
   min-width: 40px;
-  height: 36px;
-  border: 1px solid var(--g-ink);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  height: 38px;
+  border: 1px solid var(--g-line);
+  border-radius: 999px;
+  background: var(--g-surface);
+  box-shadow: var(--g-shadow-sm);
   padding: 0 16px;
-  font-size: var(--g-label);
-  font-weight: 700;
-  letter-spacing: var(--g-track);
-  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: var(--g-text);
   cursor: pointer;
-  transition: background-color var(--g-fast) var(--g-ease), color var(--g-fast) var(--g-ease);
-}
-
-.goal-actions button + button {
-  margin-left: -1px;
-}
-
-.goal-actions button[aria-label="Zoom out"] {
-  font-size: 16px;
-  letter-spacing: 0;
+  transition: transform 120ms var(--g-ease), background-color 160ms var(--g-ease), box-shadow 160ms var(--g-ease);
 }
 
 .goal-actions button:hover:not(:disabled) {
-  background: var(--g-ink);
-  color: var(--g-surface);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .goal-actions button:active:not(:disabled) {
-  background: var(--g-accent);
-  color: var(--g-accent-ink);
+  transform: scale(0.96);
 }
 
 .goal-actions button:disabled {
-  color: var(--g-faint);
+  opacity: 0.35;
   cursor: default;
 }
 
-.goal-actions .goal-danger,
-.goal-actions .goal-danger:hover:not(:disabled) {
+.goal-actions .goal-danger {
+  border-color: transparent;
   background: var(--g-danger);
   color: #ffffff;
 }
 
-.goal-actions .goal-save.is-dirty,
-.goal-actions .goal-save.is-dirty:hover:not(:disabled) {
+.goal-actions .goal-save.is-dirty {
+  border-color: transparent;
   background: var(--g-accent);
-  color: var(--g-accent-ink);
+  color: #ffffff;
 }
 
 .goal-save-error {
@@ -2166,16 +2055,12 @@ a {
   height: calc(100svh - 200px);
   min-height: 420px;
   overflow: hidden;
-  border: 1px solid var(--g-ink);
-  border-radius: 0;
-  background-color: var(--g-bg);
-  /* Measured grid: fine 24px lines, stronger every 120px. */
-  background-image: linear-gradient(rgba(11, 11, 11, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(11, 11, 11, 0.07) 1px, transparent 1px),
-    linear-gradient(rgba(11, 11, 11, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(11, 11, 11, 0.035) 1px, transparent 1px);
-  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
-  background-position: -1px -1px;
+  border: 1px solid var(--g-line);
+  border-radius: var(--g-radius);
+  background-color: #fbfbfd;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
   touch-action: manipulation;
 }
 
@@ -2191,20 +2076,20 @@ a {
 
 .goal-card {
   min-width: 720px;
-  border: 1px solid var(--g-ink);
-  border-radius: 0;
+  border: 1px solid var(--g-line);
+  border-radius: 24px;
   background: var(--g-surface);
-  box-shadow: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03), 0 20px 50px rgba(0, 0, 0, 0.07);
   padding: 18px;
 }
 
 .goal-world.is-overview .goal-card {
   cursor: zoom-in;
-  transition: box-shadow var(--g-fast) var(--g-ease);
+  transition: box-shadow 200ms var(--g-ease);
 }
 
 .goal-world.is-overview .goal-card:hover {
-  box-shadow: 0 0 0 8px var(--g-accent), 0 0 0 9px var(--g-ink);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 28px 70px rgba(0, 0, 0, 0.12);
 }
 
 .goal-world.is-overview .goal-cell,
@@ -2232,9 +2117,8 @@ a {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid var(--g-line-strong);
-  border-radius: 0;
-  background: var(--g-bg);
+  border-radius: 16px;
+  background: #fbf8ef;
 }
 
 /* Collapsed: a slim rail with just the toggle (and a dot if there are notes). */
@@ -2242,33 +2126,31 @@ a {
   width: 40px;
   align-items: center;
   gap: 10px;
-  padding-top: 8px;
+  padding-top: 10px;
 }
 
 .goal-notes-toggle {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   z-index: 1;
   width: 24px;
   height: 24px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--g-line-strong);
-  border-radius: 0;
-  background: var(--g-surface);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
   padding: 0 0 2px;
   font-size: 16px;
   line-height: 1;
-  color: var(--g-text);
+  color: var(--g-muted);
   cursor: pointer;
-  transition: background-color var(--g-fast) var(--g-ease), color var(--g-fast) var(--g-ease),
-    border-color var(--g-fast) var(--g-ease);
+  transition: background-color 160ms var(--g-ease), color 160ms var(--g-ease);
 }
 
 .goal-notes-toggle:hover {
-  border-color: var(--g-ink);
-  background: var(--g-ink);
+  background: var(--g-accent);
   color: var(--g-surface);
 }
 
@@ -2277,10 +2159,10 @@ a {
 }
 
 .goal-notes-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 0;
-  background: var(--g-ink);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--g-muted);
 }
 
 .goal-world.is-overview .goal-notes {
@@ -2292,16 +2174,14 @@ a {
   width: 100%;
   min-height: 120px;
   border: 0;
-  border-radius: 0;
   background: transparent;
-  padding: 16px 40px 16px 16px;
+  padding: 18px 42px 18px 18px;
   resize: none;
   outline: none;
   font-family: var(--g-font);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--g-text);
-  transition: background-color var(--g-fast) var(--g-ease);
 }
 
 .goal-notes-text::placeholder {
@@ -2309,16 +2189,16 @@ a {
 }
 
 .goal-notes-text:focus {
-  background: var(--g-surface);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .goal-notes-images {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
   max-height: 55%;
   overflow-y: auto;
-  padding: 0 10px 10px;
+  padding: 0 12px 12px;
 }
 
 .goal-note-image {
@@ -2326,9 +2206,9 @@ a {
   margin: 0;
   aspect-ratio: 1;
   overflow: hidden;
-  border: 1px solid var(--g-line-strong);
-  border-radius: 0;
+  border-radius: 10px;
   background: var(--g-surface);
+  box-shadow: var(--g-shadow-sm);
 }
 
 .goal-note-image[data-missing]::after {
@@ -2337,10 +2217,7 @@ a {
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: var(--g-label);
-  font-weight: 700;
-  letter-spacing: var(--g-track);
-  text-transform: uppercase;
+  font-size: 12px;
   color: var(--g-faint);
 }
 
@@ -2359,39 +2236,32 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: filter var(--g-fast) var(--g-ease);
-}
-
-.goal-card.is-active .goal-note-image:hover {
-  border-color: var(--g-ink);
+  transition: transform 300ms var(--g-ease);
 }
 
 .goal-card.is-active .goal-note-image:hover img {
-  filter: contrast(1.06);
+  transform: scale(1.04);
 }
 
 .goal-note-image-remove {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 6px;
+  right: 6px;
   width: 22px;
   height: 22px;
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 0;
-  background: var(--g-ink);
+  border-radius: 50%;
+  background: rgba(29, 29, 31, 0.72);
+  backdrop-filter: blur(6px);
   padding: 0;
   font-size: 14px;
   line-height: 1;
   color: #ffffff;
   cursor: pointer;
   opacity: 0;
-  transition: opacity var(--g-fast) var(--g-ease), background-color var(--g-fast) var(--g-ease);
-}
-
-.goal-note-image-remove:hover {
-  background: var(--g-danger);
+  transition: opacity 160ms var(--g-ease);
 }
 
 .goal-card.is-active .goal-note-image:hover .goal-note-image-remove,
@@ -2412,23 +2282,25 @@ a {
   display: grid;
   place-items: center;
   border: 0;
-  background: rgba(11, 11, 11, 0.88);
+  background: rgba(10, 10, 12, 0.6);
+  backdrop-filter: blur(14px);
   padding: 4vh 4vw;
   cursor: zoom-out;
-  animation: goal-lightbox-in 140ms var(--g-ease);
+  animation: goal-lightbox-in 260ms var(--g-ease);
 }
 
 .goal-lightbox img {
   max-width: 92vw;
   max-height: 90vh;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 0;
+  border-radius: 14px;
   background: #ffffff;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
 }
 
 @keyframes goal-lightbox-in {
   from {
     opacity: 0;
+    transform: scale(0.97);
   }
 }
 
@@ -2439,16 +2311,13 @@ a {
 }
 
 .goal-card-title {
-  margin: 18px 0 0;
-  padding-top: 12px;
-  border-top: 1px solid var(--g-ink);
+  margin: 14px 2px 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 34px;
+  font-size: 22px;
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.01em;
   color: var(--g-text);
 }
 
@@ -2457,34 +2326,29 @@ a {
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 18px;
+  gap: 14px;
   border: 2px dashed var(--g-line-strong);
   box-shadow: none;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.55);
   font-family: var(--g-font);
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: var(--g-track);
-  text-transform: uppercase;
+  font-size: 26px;
+  font-weight: 500;
   color: var(--g-muted);
   cursor: pointer;
-  transition: background-color var(--g-fast) var(--g-ease), color var(--g-fast) var(--g-ease),
-    border-color var(--g-fast) var(--g-ease);
+  transition: background-color 200ms var(--g-ease), color 200ms var(--g-ease), border-color 200ms var(--g-ease);
 }
 
 .goal-card-add span {
-  font-size: 160px;
-  font-weight: 400;
-  line-height: 0.8;
-  letter-spacing: 0;
+  font-size: 110px;
+  font-weight: 300;
+  line-height: 1;
 }
 
 .goal-card-add:hover,
 .goal-card-add:focus-visible {
-  border-style: solid;
-  border-color: var(--g-ink);
-  background: var(--g-accent);
-  color: var(--g-accent-ink);
+  border-color: var(--g-faint);
+  background: var(--g-surface);
+  color: var(--g-text);
 }
 
 /* Matrix */
@@ -2498,14 +2362,14 @@ a {
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 3px;
-  border-radius: 0;
-  padding: 4px;
+  gap: 4px;
+  border-radius: 14px;
+  padding: 5px;
   cursor: zoom-in;
 }
 
 .goal-block-core {
-  box-shadow: inset 0 0 0 1px var(--g-ink);
+  box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.18);
 }
 
 .goal-cell {
@@ -2516,20 +2380,18 @@ a {
   resize: none;
   overflow: hidden;
   border: 0;
-  border-radius: 0;
+  border-radius: 9px;
   background: var(--g-surface);
-  box-shadow: inset 0 0 0 1px var(--g-line);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
   padding: 6px;
   outline: none;
   font-family: var(--g-font);
   font-size: 14px;
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  line-height: 1.25;
   text-align: center;
   color: var(--g-text);
   cursor: text;
-  transition: box-shadow var(--g-fast) var(--g-ease);
+  transition: box-shadow 160ms var(--g-ease);
   /* Text shrinks to fit (see fitCellText) instead of splitting words. */
   overflow-wrap: normal;
   word-break: normal;
@@ -2537,15 +2399,15 @@ a {
 }
 
 .goal-cell::placeholder {
-  color: rgba(11, 11, 11, 0.2);
+  color: rgba(0, 0, 0, 0.22);
 }
 
 .goal-cell:focus {
-  box-shadow: inset 0 0 0 2px var(--g-ink);
+  box-shadow: inset 0 0 0 2px var(--g-accent);
 }
 
 .goal-cell-sub {
-  font-weight: 700;
+  font-weight: 650;
 }
 
 /* Placeholders don't auto-fit; keep "sub-goal N" on one line. */
@@ -2554,47 +2416,44 @@ a {
 }
 
 .goal-cell-main {
-  background: var(--g-ink);
-  box-shadow: none;
+  background: var(--g-accent);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
   color: #ffffff;
   font-size: 17px;
   font-weight: 700;
-  letter-spacing: -0.02em;
 }
 
 .goal-cell-main:focus {
-  box-shadow: inset 0 0 0 3px var(--g-accent);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.5);
 }
 
 .goal-cell-main::placeholder {
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .goal-block-zoom {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: -9px;
+  right: -9px;
   width: 22px;
   height: 22px;
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 0;
-  background: var(--g-ink);
-  box-shadow: none;
+  border-radius: 50%;
+  background: var(--g-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   padding: 0;
   font-size: 13px;
   line-height: 1;
-  color: #ffffff;
+  color: var(--g-text);
   cursor: zoom-in;
   opacity: 0;
-  transition: opacity var(--g-fast) var(--g-ease), background-color var(--g-fast) var(--g-ease),
-    color var(--g-fast) var(--g-ease);
+  transition: opacity 160ms var(--g-ease), transform 160ms var(--g-ease);
 }
 
 .goal-block-zoom:hover {
-  background: var(--g-accent);
-  color: var(--g-accent-ink);
+  transform: scale(1.1);
 }
 
 .goal-card.is-active .goal-block:hover .goal-block-zoom,
@@ -2608,26 +2467,14 @@ a {
   }
 }
 
-/* Status line: a ruled footer in small caps. */
 .goal-hud-bottom {
   margin-top: 10px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 0.8rem;
   color: var(--g-faint);
 }
 
 .goal-hud-bottom p {
   margin: 0;
-}
-
-.goal-hud-bottom p[role="status"] {
-  color: var(--g-muted);
-}
-
-.goal-hud-bottom p.goal-save-error {
-  color: var(--g-danger);
 }
 
 .page-blog {

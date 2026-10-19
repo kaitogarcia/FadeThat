@@ -20,16 +20,16 @@
   height: 28px;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--g-ink, var(--g-text, #0b0b0b));
-  border-radius: 0;
-  background: transparent;
-  color: var(--g-ink, var(--g-text, #0b0b0b));
+  border: 0;
+  border-radius: 50%;
+  background: var(--g-surface-2, #f2f2f5);
+  color: var(--g-muted, #6e6e73);
   cursor: pointer;
 }
 
 .toggle:hover {
-  background: var(--g-accent, #d2ff1f);
-  color: var(--g-accent-ink, #0b0b0b);
+  background: var(--g-accent, #1d1d1f);
+  color: var(--g-surface, #ffffff);
 }
 
 .toggle svg {
@@ -71,17 +71,17 @@
 .railNumber {
   font-size: 18px;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
-  color: var(--g-ink, var(--g-text, #0b0b0b));
+  color: var(--g-text, #1d1d1f);
 }
 
 .railLabel {
   font-size: 9px;
-  font-weight: 700;
-  letter-spacing: var(--g-track, 0.14em);
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--g-muted, #5c5c58);
+  color: var(--g-muted, #6e6e73);
 }
 
 @media (prefers-reduced-motion: no-preference) {
