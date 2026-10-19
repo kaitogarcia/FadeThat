@@ -1469,7 +1469,8 @@ a {
    so the numbers line up, with the name column only as wide as the longest name. */
 .goal-counters {
   display: grid;
-  grid-template-columns: max-content max-content max-content max-content max-content;
+  /* grip | name | − x + | / | y | × */
+  grid-template-columns: max-content max-content max-content max-content max-content max-content;
   justify-content: start;
   align-items: center;
   column-gap: 6px;
@@ -1565,6 +1566,53 @@ a {
 
 .goal-counter-target {
   font-variant-numeric: tabular-nums;
+}
+
+/* Reorder grip: shows on row hover/focus (always on touch); drag to move the counter. */
+.goal-counter-grip {
+  width: 12px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--g-faint);
+  cursor: grab;
+  touch-action: none;
+  opacity: 0;
+  transition: opacity 160ms var(--g-ease), color 160ms var(--g-ease);
+}
+
+.goal-counter-grip svg {
+  width: 8px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.goal-counter:hover .goal-counter-grip,
+.goal-counter:focus-within .goal-counter-grip,
+.goal-counter.is-dragging .goal-counter-grip {
+  opacity: 1;
+}
+
+.goal-counter-grip:hover {
+  color: var(--g-text);
+}
+
+.goal-counter.is-dragging {
+  border-radius: var(--g-radius-sm);
+  background: var(--g-surface-2);
+}
+
+.goal-counter.is-dragging .goal-counter-grip {
+  cursor: grabbing;
+}
+
+@media (hover: none) {
+  .goal-counter-grip {
+    opacity: 1;
+  }
 }
 
 .goal-counter-remove {
