@@ -335,13 +335,6 @@
   }
 }
 
-.empty {
-  margin: 0;
-  padding: 0 14px 8px;
-  font-size: 12px;
-  color: var(--g-muted, #6e6e73);
-}
-
 .add {
   display: flex;
   align-items: center;
