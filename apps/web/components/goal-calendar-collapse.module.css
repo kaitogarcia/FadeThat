@@ -1,0 +1,111 @@
+/* Collapsible calendar panel on /goals. Kept out of globals.css on purpose. */
+
+/* Wide screens: the collapsed calendar becomes a slim side rail and the matrices take the room. */
+@media (min-width: 1101px) {
+  .wrapCollapsed:global(.goal-wrap) {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+}
+
+/* Open panel: the toggle sits in the countdown row's top-right corner. */
+.countdown {
+  position: relative;
+}
+
+.toggle {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--g-ink, var(--g-text, #0b0b0b));
+  border-radius: 0;
+  background: transparent;
+  color: var(--g-ink, var(--g-text, #0b0b0b));
+  cursor: pointer;
+}
+
+.toggle:hover {
+  background: var(--g-accent, #d2ff1f);
+  color: var(--g-accent-ink, #0b0b0b);
+}
+
+.toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.countdown .toggle {
+  position: absolute;
+  top: 10px;
+  right: -10px;
+}
+
+/* Collapsed rail. */
+.rail:global(.goal-cal) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0 14px;
+  font-family: var(--g-font, inherit);
+  color: var(--g-text, #0b0b0b);
+}
+
+/* Cancel the panel's edge-to-edge section rules inside the rail. */
+.rail:global(.goal-cal) > * {
+  margin: 0;
+  padding: 0;
+}
+
+.railCount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+}
+
+.railNumber {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--g-ink, var(--g-text, #0b0b0b));
+}
+
+.railLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: var(--g-track, 0.14em);
+  text-transform: uppercase;
+  color: var(--g-muted, #5c5c58);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .toggle {
+    transition: background-color var(--g-fast, 120ms) ease, color var(--g-fast, 120ms) ease;
+  }
+}
+
+/* Stacked layout: collapsed calendar is a slim full-width bar instead of a side rail. */
+@media (max-width: 1100px) {
+  .rail:global(.goal-cal) {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    padding: 9px 9px 9px 16px;
+  }
+
+  .railCount {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  /* Chevrons point up (collapse) / down (expand) instead of left/right. */
+  .toggle svg {
+    transform: rotate(90deg);
+  }
+}

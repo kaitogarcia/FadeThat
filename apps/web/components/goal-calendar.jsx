@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { makeId } from "@/lib/goal-matrix";
+import collapseStyles from "@/components/goal-calendar-collapse.module.css";
 
 // Two continuous columns side by side; change these to move the window.
 const COLUMNS = [
@@ -147,7 +148,22 @@ function Counters({ counters, onChange }) {
   );
 }
 
-export default function GoalCalendar({ calendar, onChange }) {
+function Chevron({ direction }) {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path
+        d={direction === "left" ? "M10 3.5 5.5 8l4.5 4.5" : "M6 3.5 10.5 8 6 12.5"}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export default function GoalCalendar({ calendar, onChange, collapsed = false, onToggleCollapsed }) {
   const [brush, setBrush] = useState(() => calendar.legend[0]?.id || ERASER);
   // While the pointer is down, dragging across days keeps painting the same way.
   const paintRef = useRef(null);
@@ -156,6 +172,21 @@ export default function GoalCalendar({ calendar, onChange }) {
   // Range picking: null = off, { start: null } = waiting for start, { start: key } = waiting for end.
   const [rangePick, setRangePick] = useState(null);
   const [hoverKey, setHoverKey] = useState(null);
+  // The collapse toggle is a different button open vs collapsed; keep keyboard focus on it.
+  const toggleRef = useRef(null);
+  const refocusToggle = useRef(false);
+
+  useEffect(() => {
+    if (refocusToggle.current) {
+      refocusToggle.current = false;
+      toggleRef.current?.focus();
+    }
+  }, [collapsed]);
+
+  const toggleCollapsed = () => {
+    refocusToggle.current = true;
+    onToggleCollapsed?.();
+  };
 
   useEffect(() => {
     setToday(new Date());
@@ -304,9 +335,44 @@ export default function GoalCalendar({ calendar, onChange }) {
     }
   }
 
+  if (collapsed) {
+    return (
+      <aside className={`goal-cal ${collapseStyles.rail}`} aria-label="Calendar (collapsed)">
+        <button
+          type="button"
+          className={collapseStyles.toggle}
+          aria-expanded="false"
+          aria-label="Expand calendar"
+          title="Expand calendar"
+          ref={toggleRef}
+          onClick={toggleCollapsed}
+        >
+          <Chevron direction="right" />
+        </button>
+        <div className={collapseStyles.railCount} title={`${daysLeft ?? "–"} days til ${END_LABEL}`}>
+          <span className={collapseStyles.railNumber}>{daysLeft ?? "–"}</span>
+          <span className={collapseStyles.railLabel}>days</span>
+        </div>
+      </aside>
+    );
+  }
+
   return (
     <aside className="goal-cal" aria-label="Calendar">
-      <div className="goal-cal-countdown">
+      <div className={`goal-cal-countdown ${collapseStyles.countdown}`}>
+        {onToggleCollapsed ? (
+          <button
+            type="button"
+            className={collapseStyles.toggle}
+            aria-expanded="true"
+            aria-label="Collapse calendar"
+            title="Collapse calendar"
+            ref={toggleRef}
+            onClick={toggleCollapsed}
+          >
+            <Chevron direction="left" />
+          </button>
+        ) : null}
         <span className="goal-cal-countdown-number">{daysLeft ?? "–"}</span>
         <span className="goal-cal-countdown-label">days til {END_LABEL}</span>
       </div>
