@@ -234,9 +234,7 @@ export default function GoalSubgoals({ anchor, title, context, color, items, onC
             ))}
           </ul>
         </>
-      ) : (
-        <p className={styles.empty}>Break this action into smaller steps.</p>
-      )}
+      ) : null}
 
       <form
         className={styles.add}
