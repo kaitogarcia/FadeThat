@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { makeId } from "@/lib/goal-matrix";
+import { LEGEND_COLORS, RANGE_COLORS, makeId } from "@/lib/goal-matrix";
 import collapseStyles from "@/components/goal-calendar-collapse.module.css";
 
 // Two continuous columns side by side; change these to move the window.
@@ -14,9 +14,7 @@ const RANGE_END = COLUMNS[COLUMNS.length - 1].end;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const WEEKDAYS = ["s", "m", "t", "w", "t", "f", "s"];
-const NEW_COLORS = ["#b9d6ff", "#ffd6a5", "#d6c2ff", "#ffe0f0", "#d2ecff", "#c4f0d2", "#ffc1d5", "#fff3a8"];
-// Saturated: highlighter bands are drawn translucent, so they need strong base colors.
-const RANGE_COLORS = ["#5b7cfa", "#ff9f1c", "#2ec4b6", "#e84393", "#8e44ad", "#00a8e8"];
+const NEW_COLORS = LEGEND_COLORS;
 // Dots shown per day before the rest collapse into "+n".
 const MAX_DOTS = 4;
 // Matches the cap in normalizeCalendar.
