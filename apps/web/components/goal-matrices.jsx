@@ -12,10 +12,12 @@ import {
   normalizeMatrices,
 } from "@/lib/goal-matrix";
 import GoalCalendar from "@/components/goal-calendar";
+import collapseStyles from "@/components/goal-calendar-collapse.module.css";
 
 // Unsaved edits are kept in the browser until Save commits them to the repo.
 const LOCAL_KEY = "fadethat-goal-matrices-draft";
 const NOTES_COLLAPSED_KEY = "fadethat-goal-notes-collapsed";
+const CALENDAR_COLLAPSED_KEY = "fadethat-goal-calendar-collapsed";
 const SUB_COLORS = ["#b9d6ff", "#fff3a8", "#ffd6a5", "#ffc1d5", "#d6c2ff", "#c4f0d2", "#ffe0f0", "#d2ecff"];
 // The 8 positions around the center of a 3x3 grid, in reading order.
 const RING = [0, 1, 2, 3, 5, 6, 7, 8];
@@ -315,6 +317,30 @@ export default function GoalMatrices({ initialData }) {
     });
   };
 
+  // Calendar panel collapsed to a rail; a per-browser view preference, not saved data.
+  const [calendarCollapsed, setCalendarCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      setCalendarCollapsed(window.localStorage.getItem(CALENDAR_COLLAPSED_KEY) === "1");
+    } catch {
+      // Storage unavailable: the calendar starts open.
+    }
+  }, []);
+
+  const toggleCalendar = () => {
+    setCalendarCollapsed((current) => {
+      const next = !current;
+      try {
+        if (next) window.localStorage.setItem(CALENDAR_COLLAPSED_KEY, "1");
+        else window.localStorage.removeItem(CALENDAR_COLLAPSED_KEY);
+      } catch {
+        // Storage unavailable: the toggle still works for this visit.
+      }
+      return next;
+    });
+  };
+
   const stageRef = useRef(null);
   const worldRef = useRef(null);
   const cardRefs = useRef(new Map());
@@ -600,8 +626,16 @@ export default function GoalMatrices({ initialData }) {
       : null;
 
   return (
-    <section className="goal-wrap" aria-label="Goal matrices">
-      <GoalCalendar calendar={calendar} onChange={setCalendar} />
+    <section
+      className={calendarCollapsed ? `goal-wrap ${collapseStyles.wrapCollapsed}` : "goal-wrap"}
+      aria-label="Goal matrices"
+    >
+      <GoalCalendar
+        calendar={calendar}
+        onChange={setCalendar}
+        collapsed={calendarCollapsed}
+        onToggleCollapsed={toggleCalendar}
+      />
 
       <div className="goal-main">
       <div className="goal-hud goal-hud-top">
