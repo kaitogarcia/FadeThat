@@ -1,10 +1,10 @@
 {
-  "savedAt": 1792393726611,
+  "savedAt": 1792407279826,
   "matrices": [
     {
       "id": "75cd9dc0-bf46-43d4-8c9b-48899364215e",
-      "goal": "\nspecimen",
-      "notes": "",
+      "goal": "the specimen",
+      "notes": "2 plate power clean = 205 *4 ",
       "images": [
         {
           "id": "b86e783e-2811-4b38-9257-85917e217f44",
@@ -29,8 +29,82 @@
             ""
           ],
           "children": [
-            [],
-            [],
+            [
+              {
+                "id": "f587d0fa-4cbb-4e4a-94c1-be9fd97fa693",
+                "text": "3x 185 squat",
+                "done": true,
+                "kind": "task"
+              },
+              {
+                "id": "b0af1678-b674-466b-9cdc-4c920f705232",
+                "text": "3x 225 squat ",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "14cf06c6-7fc3-4028-91d0-0db9a65de8d8",
+                "text": "3x 250 squat",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "3ee98a07-5000-4f9b-b85a-cfb208bf6368",
+                "text": "3x 275 squat",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "d6c98a1d-31d1-4e13-9301-3c473dcd9352",
+                "text": "3x 300 squat",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "5b152552-7675-49f9-adee-1177c7a258d7",
+                "text": "3x 315 squat (330 ORM)",
+                "done": false,
+                "kind": "task"
+              }
+            ],
+            [
+              {
+                "id": "e90f5003-17d2-4640-ae44-67d972806407",
+                "text": "3x 135lb",
+                "done": true,
+                "kind": "task"
+              },
+              {
+                "id": "07ff787e-9718-4307-8a0c-47a37a3ae43a",
+                "text": "3x 150",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "a7d0744f-a072-4a6f-9831-de4ac578a6d0",
+                "text": "3x 170",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "1369d47c-6c4a-44b1-b521-526459521bb7",
+                "text": "3x 185",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "abc11d1e-526f-43e7-a1ca-14e0a7d3edc3",
+                "text": "3x 195",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "582dd252-5aa5-41b9-a463-9da3e43a6f3d",
+                "text": "3x 205 (215 ORM)",
+                "done": false,
+                "kind": "task"
+              }
+            ],
             [],
             [],
             [],
@@ -42,10 +116,10 @@
         {
           "goal": "16.5 in arms",
           "actions": [
-            "",
-            "",
-            "",
-            "",
+            "35 arm days (every 3 days)",
+            "150g protien",
+            "sleep well ",
+            "push hard on every set",
             "",
             "",
             "",
@@ -65,7 +139,7 @@
         {
           "goal": "thick neck",
           "actions": [
-            "",
+            "neck curls ",
             "",
             "",
             "",
@@ -89,10 +163,10 @@
           "goal": "healthy achillies + shins",
           "actions": [
             "dont jump with injury",
-            "",
-            "",
-            "",
-            "",
+            "wear the right shoes",
+            "tib rolling",
+            "tib raises ",
+            "ISO\nMETRICS",
             "",
             "",
             ""
@@ -113,7 +187,7 @@
           "actions": [
             "healthy flexible wrsits/foreamrs",
             "clip from 3",
-            "fluid tweens",
+            "symmetrical handles",
             "",
             "drive left ",
             "",
@@ -132,13 +206,13 @@
           ]
         },
         {
-          "goal": "diet \nsleep",
+          "goal": "diet \nsleep\nrecovery",
           "actions": [
             "eat twice a day",
             "150g protien",
             "7.5hrs sleep avg",
             "",
-            "",
+            "strech ",
             "",
             "",
             ""
@@ -157,7 +231,7 @@
         {
           "goal": "healthy brain ",
           "actions": [
-            "",
+            "dont smoke too late",
             "",
             "",
             "",
@@ -178,10 +252,10 @@
           ]
         },
         {
-          "goal": "",
+          "goal": "\nmetacognative \nnondual \nspirituallity\nawareness",
           "actions": [
-            "",
-            "",
+            "emotional awarenss",
+            "approach with love\n",
             "",
             "",
             "",
@@ -399,21 +473,34 @@
     "legend": [
       {
         "id": "hit",
-        "color": "#c4f0d2",
+        "color": "#2f9e44",
         "label": "arms"
       },
       {
         "id": "miss",
-        "color": "#ffc1d5",
-        "label": "missed"
+        "color": "#e03131",
+        "label": "hoops"
       },
       {
         "id": "rest",
-        "color": "#fff3a8",
-        "label": "rest day"
+        "color": "#f08c00",
+        "label": "REST"
+      },
+      {
+        "id": "484a417a-d803-4ff0-8811-9f7d3b945df7",
+        "color": "#1971c2",
+        "label": "neck"
       }
     ],
-    "days": {},
+    "days": {
+      "2026-10-19": [
+        "miss"
+      ],
+      "2026-10-18": [
+        "hit",
+        "484a417a-d803-4ff0-8811-9f7d3b945df7"
+      ]
+    },
     "counters": [
       {
         "id": "9cc8e1d5-64dd-4acb-9a09-821bc495eff1",
@@ -444,6 +531,12 @@
         "label": "hoops",
         "value": 1,
         "target": ""
+      },
+      {
+        "id": "933ef01f-c3d2-4d44-8fe6-91d95a89ac79",
+        "label": "rehab n stretch",
+        "value": 1,
+        "target": "50"
       }
     ],
     "ranges": [
@@ -451,22 +544,29 @@
         "id": "e0b515d7-cd07-4956-9a08-60be9ce089f9",
         "start": "2026-11-19",
         "end": "2026-11-24",
-        "color": "#5b7cfa",
+        "color": "#b9d6ff",
         "label": "boston"
       },
       {
         "id": "72255f20-f2a4-4fb3-90a8-ba01065dd6d9",
         "start": "2026-11-03",
         "end": "2026-11-09",
-        "color": "#ff9f1c",
+        "color": "#ffd6a5",
         "label": "singapore"
       },
       {
         "id": "14a12380-5930-4cb3-ba79-d6275d102925",
         "start": "2026-10-29",
         "end": "2026-11-02",
-        "color": "#2ec4b6",
+        "color": "#c4f0d2",
         "label": "ny"
+      },
+      {
+        "id": "73790caa-7c9c-4921-9871-e2e9bd7fd1c6",
+        "start": "2026-10-23",
+        "end": "2026-10-28",
+        "color": "#ffc1d5",
+        "label": "sf"
       }
     ]
   }
