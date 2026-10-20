@@ -1,5 +1,5 @@
 {
-  "savedAt": 1792409974214,
+  "savedAt": 1792479304422,
   "matrices": [
     {
       "id": "75cd9dc0-bf46-43d4-8c9b-48899364215e",
@@ -70,37 +70,49 @@
             [
               {
                 "id": "e90f5003-17d2-4640-ae44-67d972806407",
-                "text": "3x 135lb",
+                "text": "135lb",
                 "done": true,
                 "kind": "task"
               },
               {
                 "id": "07ff787e-9718-4307-8a0c-47a37a3ae43a",
-                "text": "3x 150",
+                "text": "155",
                 "done": false,
                 "kind": "task"
               },
               {
                 "id": "a7d0744f-a072-4a6f-9831-de4ac578a6d0",
-                "text": "3x 170",
+                "text": "175",
                 "done": false,
                 "kind": "task"
               },
               {
                 "id": "1369d47c-6c4a-44b1-b521-526459521bb7",
-                "text": "3x 185",
+                "text": "185",
                 "done": false,
                 "kind": "task"
               },
               {
                 "id": "abc11d1e-526f-43e7-a1ca-14e0a7d3edc3",
-                "text": "3x 195",
+                "text": "195",
                 "done": false,
                 "kind": "task"
               },
               {
                 "id": "582dd252-5aa5-41b9-a463-9da3e43a6f3d",
-                "text": "3x 205 (215 ORM)",
+                "text": "205",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "494978cb-22e6-4bfa-94e0-a54608fc8679",
+                "text": "210",
+                "done": false,
+                "kind": "task"
+              },
+              {
+                "id": "f73f3058-515d-4464-b46c-142a14be518b",
+                "text": "215",
                 "done": false,
                 "kind": "task"
               }
@@ -140,7 +152,7 @@
           "goal": "thick neck",
           "actions": [
             "neck curls ",
-            "",
+            "keep the neck loose",
             "",
             "",
             "",
@@ -490,22 +502,36 @@
         "id": "484a417a-d803-4ff0-8811-9f7d3b945df7",
         "color": "#1971c2",
         "label": "neck"
+      },
+      {
+        "id": "5a85be95-f652-451f-a916-4a765caa1871",
+        "color": "#7048e8",
+        "label": "legs"
+      },
+      {
+        "id": "b02f0b03-93ae-4e05-9519-ddc5220ca82e",
+        "color": "#0c8599",
+        "label": "achillies/shin work"
       }
     ],
     "days": {
-      "2026-10-19": [
-        "miss"
-      ],
-      "2026-10-18": [
+      "2026-10-17": [
         "hit",
         "484a417a-d803-4ff0-8811-9f7d3b945df7"
+      ],
+      "2026-10-18": [
+        "miss"
+      ],
+      "2026-10-19": [
+        "5a85be95-f652-451f-a916-4a765caa1871",
+        "b02f0b03-93ae-4e05-9519-ddc5220ca82e"
       ]
     },
     "counters": [
       {
         "id": "9cc8e1d5-64dd-4acb-9a09-821bc495eff1",
         "label": "specimen counter",
-        "value": 1,
+        "value": 3,
         "target": "90"
       },
       {
@@ -517,7 +543,7 @@
       {
         "id": "6eb50e3a-dfe9-4bff-a1ca-2f6d48eb6312",
         "label": "leg day",
-        "value": 0,
+        "value": 1,
         "target": "25"
       },
       {
@@ -535,8 +561,14 @@
       {
         "id": "933ef01f-c3d2-4d44-8fe6-91d95a89ac79",
         "label": "rehab n stretch",
-        "value": 1,
+        "value": 2,
         "target": "50"
+      },
+      {
+        "id": "420fc011-3436-4d41-8dad-c617e8b074e3",
+        "label": "isometrics/tib raises",
+        "value": 1,
+        "target": "40"
       }
     ],
     "ranges": [
