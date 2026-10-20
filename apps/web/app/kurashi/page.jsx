@@ -20,7 +20,7 @@ export const metadata = {
 export default function KurashiPage() {
   return (
     <div className={`${s.page} ${kurashiFont.variable}`}>
-      <PageShell>
+      <PageShell showNav={false}>
         <Kurashi initialData={kurashiData} />
       </PageShell>
     </div>
