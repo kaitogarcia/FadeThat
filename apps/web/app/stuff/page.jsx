@@ -82,6 +82,20 @@ export default function StuffPage() {
               open
             </Link>
           </article>
+
+          <article className="card">
+            <div>
+              <span className="chip chip-live">live</span>
+              <h2>kurashi</h2>
+              <p>
+                to-do lists for a day, a week, a month or a year, and a budget book that reads
+                receipts and payment screenshots and totals each month by category.
+              </p>
+            </div>
+            <Link className="cta" href="/kurashi">
+              open
+            </Link>
+          </article>
         </section>
       </PageShell>
     </div>
