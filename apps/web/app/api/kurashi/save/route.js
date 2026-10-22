@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
-import { FRONT_AUTH_COOKIE, frontAuthToken } from "@/lib/front-auth";
+import { hasKurashiAccess } from "@/lib/front-auth";
 import { normalizeDoc } from "@/lib/kurashi/data";
 import { commitFiles } from "@/lib/repo-commit";
 
@@ -18,7 +18,7 @@ function fail(status, error) {
 
 export async function POST(request) {
   // /api/* skips the site password check, so this route checks the login cookie itself.
-  if (request.cookies.get(FRONT_AUTH_COOKIE)?.value !== frontAuthToken()) {
+  if (!(await hasKurashiAccess(request.cookies))) {
     return fail(401, "Log in on the home page first.");
   }
 
