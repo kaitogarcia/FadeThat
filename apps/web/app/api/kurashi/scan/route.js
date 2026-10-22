@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { FRONT_AUTH_COOKIE, frontAuthToken } from "@/lib/front-auth";
+import { hasKurashiAccess } from "@/lib/front-auth";
 import { CATEGORIES } from "@/lib/kurashi/data";
 import { ISO_DATE, todayISO } from "@/lib/kurashi/dates";
 
@@ -74,7 +74,7 @@ async function scanWithApi(images, today, lang) {
 }
 
 export async function POST(request) {
-  if (request.cookies.get(FRONT_AUTH_COOKIE)?.value !== frontAuthToken()) {
+  if (!(await hasKurashiAccess(request.cookies))) {
     return fail(401, "Log in on the home page first.");
   }
   // Scans cost money; the default login token is public, so the live site needs a private one.

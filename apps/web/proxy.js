@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { FRONT_AUTH_COOKIE, frontAuthToken } from "@/lib/front-auth";
+import { hasFullAccess, hasKurashiAccess, isKurashiPath } from "@/lib/front-auth";
 
 const PUBLIC_FILE_PATTERN = /\.[^/]+$/;
 
-export function proxy(request) {
+export async function proxy(request) {
   const { pathname, search } = request.nextUrl;
 
   if (
@@ -16,8 +16,11 @@ export function proxy(request) {
     return NextResponse.next();
   }
 
-  const isAuthed = request.cookies.get(FRONT_AUTH_COOKIE)?.value === frontAuthToken();
-  if (isAuthed) {
+  // /kurashi opens with either password; everything else needs the full-site one.
+  const allowed = isKurashiPath(pathname)
+    ? await hasKurashiAccess(request.cookies)
+    : hasFullAccess(request.cookies);
+  if (allowed) {
     return NextResponse.next();
   }
 
