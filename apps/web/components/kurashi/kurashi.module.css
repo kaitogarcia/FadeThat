@@ -52,15 +52,13 @@
   font-family: var(--k-font);
 }
 
-.app button,
-.app input,
-.app select,
-.app textarea {
+/* :where() keeps these at zero specificity, so a component's own font-size still wins. */
+:where(.app, .modal) :where(button, input, select, textarea) {
   font: inherit;
   color: inherit;
 }
 
-.app button {
+:where(.app, .modal) button {
   cursor: pointer;
 }
 
@@ -137,21 +135,52 @@
   min-width: 0;
 }
 
-.status {
-  max-width: 260px;
-  overflow: hidden;
-  font-size: 13px;
+.savePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--k-line-strong);
+  border-radius: 999px;
+  background: var(--k-surface);
   color: var(--k-muted);
-  text-overflow: ellipsis;
+  font-size: 13px;
   white-space: nowrap;
 }
 
-.statusDirty {
-  color: #c93400;
+.saveDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34c759;
+  transition: background-color 160ms var(--k-ease);
 }
 
-.statusError {
+.save_dirty .saveDot {
+  background: #ff9f0a;
+}
+
+.save_saving .saveDot {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--k-accent);
+  animation: pulse 900ms ease-in-out infinite;
+}
+
+.save_error {
+  border-color: rgba(215, 0, 21, 0.35);
   color: var(--k-danger);
+}
+
+.save_error .saveDot {
+  background: var(--k-danger);
+}
+
+@keyframes pulse {
+  50% {
+    transform: scale(0.6);
+  }
 }
 
 .selectPill select {
@@ -523,6 +552,14 @@
   font-size: 28px;
 }
 
+/* Grid and flex children default to min-width: auto, so one wide row (a long title, the
+   scrolling action bar) would stretch the whole column past the screen. */
+.todo > *,
+.budgetGrid > *,
+.kpis > * {
+  min-width: 0;
+}
+
 .paneHead {
   display: flex;
   flex-wrap: wrap;
@@ -532,6 +569,11 @@
   margin-bottom: 18px;
 }
 
+.paneHead > div:first-child {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
 .paneTitle {
   margin: 0 0 8px;
   font-family: var(--k-font);
@@ -539,6 +581,7 @@
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .meta {
@@ -756,6 +799,7 @@
 
 .stepper {
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
   gap: 4px;
   padding: 2px;
@@ -1338,11 +1382,39 @@
   font-weight: 600;
 }
 
+/* Only the phone layout shows it: the way back from a list to the sidebar. */
+.backBtn {
+  display: none;
+}
+
+.hintTouch {
+  display: none;
+}
+
+/* ---------- touch screens ---------- */
+
+@media (hover: none) {
+  /* Nothing hovers on a phone, so the delete buttons are always shown. */
+  .itemDelete {
+    opacity: 1;
+  }
+
+  /* No dragging or ⌘V on a phone: say "tap" instead. */
+  .hintMouse {
+    display: none;
+  }
+
+  .hintTouch {
+    display: inline;
+  }
+}
+
 /* ---------- narrow screens ---------- */
 
 @media (max-width: 960px) {
   .top {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr;
+    row-gap: 10px;
   }
 
   .top > :nth-child(2) {
@@ -1350,9 +1422,31 @@
     grid-row: 2;
   }
 
-  .todo,
-  .budgetGrid {
+  /* The sidebar and the pane take turns instead of stacking. */
+  .todo {
     grid-template-columns: 1fr;
+  }
+
+  .todo .pane {
+    display: none;
+  }
+
+  .todoDetail .pane {
+    display: block;
+  }
+
+  .todoDetail .sidebar {
+    display: none;
+  }
+
+  .backBtn {
+    display: inline-block;
+    margin: -6px 0 14px -4px;
+    padding: 6px 4px;
+    border: 0;
+    background: none;
+    color: var(--k-accent);
+    font-size: 16px;
   }
 
   .sidebar {
@@ -1360,8 +1454,16 @@
     max-height: none;
   }
 
+  .pane {
+    min-height: 0;
+  }
+
+  .budgetGrid {
+    grid-template-columns: 1fr;
+  }
+
   .kpis {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .kpiMain {
@@ -1370,39 +1472,374 @@
 }
 
 @media (max-width: 600px) {
-  .status {
+  .page :global(.shell) {
+    width: calc(100% - 20px);
+    padding-top: 10px;
+  }
+
+  .app {
+    gap: 12px;
+    margin-top: 0;
+  }
+
+  .top {
+    top: 6px;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 16px;
+  }
+
+  .brand {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .brand h1 {
+    font-size: 18px;
+    white-space: nowrap;
+  }
+
+  .logo {
+    width: 26px;
+    height: 26px;
+  }
+
+  .topRight {
+    gap: 6px;
+  }
+
+  /* The save status shrinks to its dot; only a failure spells itself out. */
+  .savePill {
+    padding: 0 11px;
+  }
+
+  .saveText {
     display: none;
   }
 
+  .save_error .saveText {
+    display: inline;
+  }
+
+  /* A native select is as wide as its longest option; pin it so the bar fits. */
+  .selectPill select {
+    width: 76px;
+    padding: 0 22px 0 10px;
+    background-position: right 8px center;
+    text-overflow: ellipsis;
+  }
+
+  .seg button {
+    min-width: 0;
+    padding: 0 4px;
+    font-size: 13px;
+  }
+
+  .card {
+    border-radius: 16px;
+  }
+
+  .sidebar {
+    padding: 12px;
+  }
+
+  .filters {
+    flex-wrap: nowrap;
+    margin: 0 -12px;
+    padding: 0 12px 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
   .pane {
-    padding: 20px;
+    padding: 18px 16px 20px;
   }
 
   .paneTitle {
     font-size: 24px;
   }
 
-  .catGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .paneHead {
+    gap: 12px;
   }
 
+  /* Smaller list actions, wrapping, so every one (delete included) stays in sight. */
+  .paneActions {
+    gap: 6px;
+  }
+
+  .paneActions .btn {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .item {
+    gap: 12px;
+    padding: 13px 0;
+  }
+
+  /* iOS zooms into any field under 16px when it gets focus. */
+  .field input,
+  .field textarea,
+  .field select,
+  .reviewTable input,
+  .reviewTable select {
+    font-size: 16px;
+  }
+
+  .fieldRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .fieldRow > .field {
+    width: 100%;
+  }
+
+  .rangePreview {
+    padding: 0;
+  }
+
+  .formActions .btn {
+    flex: 1;
+    height: 42px;
+  }
+
+  .monthSwitch {
+    gap: 8px;
+  }
+
+  .monthSwitch h2 {
+    min-width: 0;
+    font-size: 20px;
+  }
+
+  /* Month on its own line, currency switch and add button on the next. */
+  .budgetBar {
+    gap: 10px;
+  }
+
+  .monthSwitch {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .monthSwitch h2 {
+    white-space: nowrap;
+  }
+
+  .budgetBarRight {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .budgetBarRight .btn {
+    margin-left: auto;
+    padding: 0 14px;
+  }
+
+  .txSub {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .kpis {
+    gap: 10px;
+  }
+
+  .kpi {
+    padding: 12px 14px;
+    gap: 4px;
+  }
+
+  .kpi > span {
+    font-size: 11px;
+  }
+
+  .kpi strong {
+    overflow: hidden;
+    font-size: 17px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .kpiMain strong {
+    font-size: 32px;
+  }
+
+  .kpiMuted {
+    font-size: 12px;
+  }
+
+  .drop {
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .dropIcon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .dropText strong {
+    font-size: 16px;
+  }
+
+  .dropText span {
+    font-size: 13px;
+  }
+
+  .scanBusy {
+    flex-wrap: wrap;
+    padding: 16px;
+  }
+
+  .catCard,
+  .historyCard {
+    padding: 16px;
+  }
+
+  .table th,
+  .table td {
+    padding: 9px 4px;
+  }
+
+  .txIcon {
+    width: 38px;
+  }
+
+  .txTitle {
+    font-size: 14px;
+  }
+
+  .txActions {
+    width: 30px;
+  }
+
+  .review {
+    padding: 14px 14px 16px;
+  }
+
+  .reviewHead .formActions {
+    width: 100%;
+  }
+
+  /* Each found expense becomes a small card: tick on the left, fields stacked. */
   .reviewTable thead {
     display: none;
   }
 
   .reviewTable tr {
     display: grid;
-    grid-template-columns: 36px 1fr;
-    padding: 8px 0;
+    grid-template-columns: 34px 1fr;
+    gap: 6px;
+    padding: 12px 0;
     border-bottom: 1px solid var(--k-line);
   }
 
   .reviewTable td {
+    padding: 0;
     border: 0;
-    padding: 4px;
+  }
+
+  /* One field per line: at 320px two side by side squeeze the date and category. */
+  .reviewTable td:first-child {
+    grid-row: 1 / span 5;
+    width: auto;
+    padding-top: 6px;
   }
 
   .reviewTable td:not(:first-child) {
     grid-column: 2;
+    min-width: 0;
+  }
+
+  .amountCell {
+    grid-template-columns: 1fr 96px;
+    justify-content: stretch;
+  }
+
+  /* The dialog becomes a bottom sheet. */
+  .modalLayer {
+    align-items: end;
+    padding: 0;
+  }
+
+  .modal {
+    width: 100%;
+    max-height: 92vh;
+    padding: 22px 18px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 22px 22px 0 0;
+    animation-name: sheet;
+  }
+
+  /* Save and Cancel stay pinned to the bottom of the sheet while the fields scroll. */
+  .modal > .formActions {
+    position: sticky;
+    bottom: calc(-18px - env(safe-area-inset-bottom));
+    margin: 0 -18px calc(-18px - env(safe-area-inset-bottom));
+    padding: 12px 18px calc(18px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--k-line);
+    background: var(--k-surface);
+  }
+
+  .amountEntry select {
+    width: 96px;
+  }
+
+  .amountEntry input {
+    font-size: 32px;
+  }
+
+  .catGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .catCell {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 4px;
+    font-size: 12px;
+    text-align: center;
+  }
+}
+
+@keyframes sheet {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (max-width: 370px) {
+  .logo {
+    display: none;
+  }
+}
+
+@media (max-width: 340px) {
+  .brand h1 {
+    font-size: 16px;
+  }
+
+  .topRight {
+    gap: 4px;
+  }
+
+  .topRight .segSm button {
+    padding: 0 6px;
+  }
+
+  .selectPill select {
+    width: 62px;
+    padding-right: 18px;
+    background-position: right 6px center;
+  }
+
+  .savePill {
+    padding: 0 9px;
   }
 }

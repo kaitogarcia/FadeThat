@@ -134,7 +134,10 @@ export default function ScanPanel({ t, lang, expenses, onAdd }) {
           <span className={s.dropText}>
             <strong>{t("scan.title")}</strong>
             <span>{t("scan.drop")}</span>
-            <em>{t("scan.dropHint")}</em>
+            <em>
+              <span className={s.hintMouse}>{t("scan.dropHint")}</span>
+              <span className={s.hintTouch}>{t("scan.tapHint")}</span>
+            </em>
           </span>
           {notice && <span className={s.notice}>{notice}</span>}
         </button>
@@ -186,7 +189,7 @@ export default function ScanPanel({ t, lang, expenses, onAdd }) {
                     </td>
                     <td><input type="date" value={f.date} onChange={(e) => e.target.value && patch(f.key, { date: e.target.value })} /></td>
                     <td>
-                      <input value={f.merchant} onChange={(e) => patch(f.key, { merchant: e.target.value })} />
+                      <input value={f.merchant} placeholder={t("expense.merchant")} onChange={(e) => patch(f.key, { merchant: e.target.value })} />
                       {f.duplicate && <em className={s.dup}>{t("scan.dup")}</em>}
                     </td>
                     <td>
@@ -202,7 +205,7 @@ export default function ScanPanel({ t, lang, expenses, onAdd }) {
                         </select>
                       </span>
                     </td>
-                    <td><input value={f.note} onChange={(e) => patch(f.key, { note: e.target.value })} /></td>
+                    <td><input value={f.note} placeholder={t("expense.note")} onChange={(e) => patch(f.key, { note: e.target.value })} /></td>
                   </tr>
                 ))}
               </tbody>

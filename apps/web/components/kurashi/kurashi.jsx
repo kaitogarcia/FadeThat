@@ -15,6 +15,11 @@ const DRAFT_KEY = "fadethat-kurashi-draft";
 // would otherwise show the older data the page was built from.
 const SAVED_KEY = "fadethat-kurashi-saved";
 const TAB_KEY = "fadethat-kurashi-tab";
+// Save this long after the last edit, and retry a failed save after this long.
+const AUTOSAVE_MS = 3000;
+const RETRY_MS = 15000;
+// Browsers cap keepalive request bodies at 64 KB.
+const KEEPALIVE_LIMIT = 60000;
 
 function read(key) {
   try {
@@ -73,18 +78,23 @@ export default function Kurashi({ initialData }) {
     document.documentElement.lang = lang;
   }, [lang]);
 
-  // Track unsaved changes and keep a browser draft of them.
-  useEffect(() => {
-    if (!restored) return;
-    const dirty = JSON.stringify(doc) !== savedRef.current.json;
-    write(DRAFT_KEY, dirty ? { baseSavedAt: savedRef.current.savedAt, doc } : null);
-    setSaveState((state) => (state === "saving" ? state : dirty ? "dirty" : state === "dirty" ? "clean" : state));
-  }, [doc, restored]);
+  // Autosave. Every save is a commit and a redeploy, so it waits for a pause in typing
+  // rather than firing on each keystroke, and only one save is ever in flight.
+  const timerRef = useRef(null);
+  const inFlightRef = useRef(false);
+  const againRef = useRef(false);
 
   const save = useCallback(async () => {
-    if (saveState === "saving") return;
+    clearTimeout(timerRef.current);
+    if (inFlightRef.current) {
+      againRef.current = true;
+      return;
+    }
     const sent = docRef.current;
     const json = JSON.stringify(sent);
+    if (json === savedRef.current.json) return;
+
+    inFlightRef.current = true;
     setSaveState("saving");
     setSaveMessage("");
     try {
@@ -100,14 +110,66 @@ export default function Kurashi({ initialData }) {
       const stillDirty = JSON.stringify(docRef.current) !== json;
       write(DRAFT_KEY, stillDirty ? { baseSavedAt: payload.savedAt, doc: docRef.current } : null);
       setSaveState(stillDirty ? "dirty" : "saved");
-      setSaveMessage(payload.mode === "github" ? "save.github" : "save.file");
+      if (stillDirty) againRef.current = true;
     } catch (error) {
       setSaveState("error");
       setSaveMessage(error.message || "Save failed.");
+      timerRef.current = setTimeout(() => saveRef.current(), RETRY_MS);
+    } finally {
+      inFlightRef.current = false;
+      if (againRef.current) {
+        againRef.current = false;
+        timerRef.current = setTimeout(() => saveRef.current(), AUTOSAVE_MS);
+      }
     }
-  }, [saveState]);
+  }, []);
+  const saveRef = useRef(save);
+  saveRef.current = save;
 
-  // Cmd/Ctrl + S saves.
+  // Track unsaved changes, keep a browser draft of them, and schedule the autosave.
+  useEffect(() => {
+    if (!restored) return;
+    const dirty = JSON.stringify(doc) !== savedRef.current.json;
+    write(DRAFT_KEY, dirty ? { baseSavedAt: savedRef.current.savedAt, doc } : null);
+    if (!dirty) return;
+    setSaveState((state) => (state === "saving" ? state : "dirty"));
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => saveRef.current(), AUTOSAVE_MS);
+  }, [doc, restored]);
+
+  // Leaving the tab or closing it saves right away. keepalive lets the request outlive the
+  // page, but only for small bodies; a bigger one stays in the draft and saves next visit.
+  useEffect(() => {
+    const flush = () => {
+      if (document.visibilityState !== "hidden" || inFlightRef.current) return;
+      const json = JSON.stringify(docRef.current);
+      if (json === savedRef.current.json || json.length > KEEPALIVE_LIMIT) return;
+      clearTimeout(timerRef.current);
+      fetch("/api/kurashi/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: json, keepalive: true })
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((payload) => {
+          savedRef.current = { savedAt: payload.savedAt, json };
+          write(SAVED_KEY, { savedAt: payload.savedAt, doc: JSON.parse(json) });
+          if (JSON.stringify(docRef.current) === json) {
+            write(DRAFT_KEY, null);
+            setSaveState("saved");
+          }
+        })
+        .catch(() => {
+          // The draft is still in the browser; the next visit saves it.
+        });
+    };
+    document.addEventListener("visibilitychange", flush);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      document.removeEventListener("visibilitychange", flush);
+      window.removeEventListener("pagehide", flush);
+    };
+  }, []);
+
+  useEffect(() => () => clearTimeout(timerRef.current), []);
+
+  // Cmd/Ctrl + S saves now instead of after the pause.
   useEffect(() => {
     const onKey = (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
@@ -132,9 +194,8 @@ export default function Kurashi({ initialData }) {
   const status =
     saveState === "saving" ? t("save.saving")
       : saveState === "dirty" ? t("save.dirty")
-        : saveState === "error" ? saveMessage
-          : saveState === "saved" ? t(saveMessage)
-            : t("save.clean");
+        : saveState === "error" ? t("save.error")
+          : t("save.saved");
 
   const switchTab = (next) => {
     setTab(next);
@@ -167,13 +228,11 @@ export default function Kurashi({ initialData }) {
               {CURRENCIES.map((c) => <option key={c} value={c}>{currencyShort(c, lang)}</option>)}
             </select>
           </label>
-          <span className={`${s.status} ${saveState === "error" ? s.statusError : ""} ${saveState === "dirty" ? s.statusDirty : ""}`}
-            role="status" title={t("save.hint")}>
-            {status}
-          </span>
-          <button type="button" className={`${s.btn} ${s.btnPrimary}`} onClick={save}
-            disabled={saveState === "saving" || saveState === "clean" || saveState === "saved"}>
-            {saveState === "saving" ? t("save.saving") : t("save.save")}
+          {/* The autosave status; tapping it saves now, which is the way to retry after an error. */}
+          <button type="button" className={`${s.savePill} ${s[`save_${saveState}`] ?? ""}`} onClick={save}
+            title={saveState === "error" ? saveMessage : t("save.hint")} aria-live="polite">
+            <span className={s.saveDot} aria-hidden="true" />
+            <span className={s.saveText}>{status}</span>
           </button>
         </div>
       </header>

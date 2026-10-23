@@ -24,6 +24,14 @@ export default function TodoView({ t, lang, lists, putList, removeList }) {
   // null | { mode: "new" } | { mode: "edit", list }
   const [form, setForm] = useState(null);
   const [allPast, setAllPast] = useState(false);
+  // On a phone the sidebar and the pane take turns; this says which one is showing.
+  // It only drives the narrow layout's CSS; on a wide screen both are always visible.
+  const [detailOpen, setDetailOpen] = useState(false);
+  const openDetail = () => {
+    setDetailOpen(true);
+    window.scrollTo({ top: 0 });
+  };
+  const closeDetail = () => setDetailOpen(false);
 
   const today = todayISO();
   const visible = lists.filter((l) => filter === "all" || l.term === filter);
@@ -37,9 +45,9 @@ export default function TodoView({ t, lang, lists, putList, removeList }) {
   const selected = lists.find((l) => l.id === selectedId) ?? sections.flatMap((x) => x.items)[0] ?? null;
 
   return (
-    <div className={s.todo}>
+    <div className={`${s.todo} ${detailOpen ? s.todoDetail : ""}`}>
       <aside className={`${s.card} ${s.sidebar}`}>
-        <button type="button" className={`${s.btn} ${s.btnPrimary} ${s.btnWide}`} onClick={() => setForm({ mode: "new" })}>
+        <button type="button" className={`${s.btn} ${s.btnPrimary} ${s.btnWide}`} onClick={() => { setForm({ mode: "new" }); openDetail(); }}>
           ＋ {t("todo.new")}
         </button>
         <div className={s.filters}>
@@ -67,7 +75,7 @@ export default function TodoView({ t, lang, lists, putList, removeList }) {
                   return (
                     <button key={list.id} type="button"
                       className={`${s.listRow} ${selected?.id === list.id && !form ? s.listRowOn : ""}`}
-                      onClick={() => { setSelectedId(list.id); setForm(null); }}>
+                      onClick={() => { setSelectedId(list.id); setForm(null); openDetail(); }}>
                       <Ring term={list.term} done={done} total={list.items.length} />
                       <span className={s.listRowMain}>
                         <span className={s.listRowTitle}>{listTitle(list, lang)}</span>
@@ -87,16 +95,17 @@ export default function TodoView({ t, lang, lists, putList, removeList }) {
       </aside>
 
       <main className={`${s.card} ${s.pane}`}>
+        <button type="button" className={s.backBtn} onClick={() => { setForm(null); closeDetail(); }}>‹ {t("todo.lists")}</button>
         {form ? (
           <ListForm key={form.mode === "edit" ? form.list.id : "new"} t={t} lang={lang} list={form.mode === "edit" ? form.list : null}
             initialTerm={filter === "all" ? "day" : filter}
-            onCancel={() => setForm(null)}
+            onCancel={() => { setForm(null); closeDetail(); }}
             onSubmit={(list) => { putList(list); setSelectedId(list.id); setForm(null); }} />
         ) : selected ? (
           <ListPane key={selected.id} t={t} lang={lang} list={selected} putList={putList}
             onEdit={() => setForm({ mode: "edit", list: selected })}
             onOpen={setSelectedId}
-            onDelete={() => { removeList(selected.id); setSelectedId(null); }} />
+            onDelete={() => { removeList(selected.id); setSelectedId(null); closeDetail(); }} />
         ) : (
           <div className={s.paneEmpty}>
             <span className={s.emptyIcon}>✓</span>
