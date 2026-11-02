@@ -96,6 +96,20 @@ export default function StuffPage() {
               open
             </Link>
           </article>
+
+          <article className="card">
+            <div>
+              <span className="chip chip-live">live</span>
+              <h2>emberfall</h2>
+              <p>
+                a small top-down bullet-hell rpg. walk out from the hearth, level up, grab stat
+                shards and better rods, and take down the ember sovereign at the rim.
+              </p>
+            </div>
+            <Link className="cta" href="/emberfall">
+              open
+            </Link>
+          </article>
         </section>
       </PageShell>
     </div>
